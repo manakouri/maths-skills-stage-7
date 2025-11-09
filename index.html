@@ -1673,12 +1673,10 @@
           const isSubmitted = Object.values(answerStatus).some(s => s !== AnswerStatus.UNANSWERED);
           const isAllCorrect = Object.values(answerStatus).every(s => s === AnswerStatus.CORRECT || s === AnswerStatus.UNANSWERED);
 
+          const themeFocusClass = `focus-within:ring-${colorTheme === 'fractions' ? 'purple' : 'blue'}-500`;
+
           const renderInput = (type) => {
               const status = answerStatus[type];
-              const statusRingClass = status === AnswerStatus.CORRECT ? 'ring-green-500' : status === AnswerStatus.INCORRECT ? 'ring-red-500' : 'ring-slate-300';
-              const statusBgClass = status === AnswerStatus.CORRECT ? 'bg-green-50' : status === AnswerStatus.INCORRECT ? 'bg-red-50' : 'bg-white';
-              const themeFocusClass = `focus-within:ring-${colorTheme === 'fractions' ? 'purple' : 'blue'}-500`;
-
               switch(type){
                   case 'decimal': return <input ref={firstInputRef} type="number" step="any" value={decimal} onChange={e => setDecimal(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0.00" disabled={isAllCorrect}/>
                   case 'percentage': return <input ref={!question.answer.decimal ? firstInputRef : null} type="number" value={percentage} onChange={e => setPercentage(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0" disabled={isAllCorrect}/>
