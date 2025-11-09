@@ -135,7 +135,7 @@
               `;
           };
 
-          const conversionValues = [ { n: 1, d: 2 }, { n: 1, d: 4 }, { n: 3, d: 4 }, { n: 1, d: 5 }, { n: 2, d: 5 }, { n: 3, d: 5 }, { n: 4, d: 5 }, { n: 1, d: 10 }, { n: 3, d: 10 }, { n: 7, d: 10 }, { n: 9, d: 10 }, { n: 1, d: 20 }, { n: 3, d: 20 }, { n: 7, d: 20 }, { n: 9, d: 20 }, { n: 11, d: 20 }, { n: 13, d: 20 }, { n: 17, d: 20 }, { n: 19, d: 20 }, { n: 1, d: 25 }, { n: 2, d: 25 }, { n: 4, d: 25 }, { n: 6, d: 25 }, { n: 1, d: 50 }, { n: 3, d: 2 }, { n: 5, d: 4 }, { n: 7, d: 4 }, { n: 6, d: 5 }, { n: 7, d: 5 }, { n: 8, d: 5 }, { n: 9, d: 5 }, { n: 11, d: 10 }, { n: 13, d: 10 }, { n: 17, d: 10 }, { n: 19, d: 10 } ].map(f => ({ fraction: { numerator: f.n, denominator: f.d }, decimal: f.n / f.d, percentage: (f.n / f.d) * 100, original: f }));
+          const conversionValues = [ { n: 1, d: 2 }, { n: 1, d: 4 }, { n: 3, d: 4 }, { n: 1, d: 5 }, { n: 2, d: 5 }, { n: 3, d: 5 }, { n: 4, d: 5 }, { n: 1, d: 10 }, { n: 3, d: 10 }, { n: 7, d: 10 }, { n: 9, d: 10 }, { n: 1, d: 20 }, { n: 3, d: 20 }, { n: 7, d: 20 }, { n: 9, d: 20 }, { n: 11, d: 20 }, { n: 13, d: 20 }, { n: 17, d: 20 }, { n: 19, d: 20 }, { n: 1, d: 25 }, { n: 2, d: 25 }, { n: 4, d: 25 }, { n: 6, d: 25 }, { n: 1, d: 50 }, { n: 3, d: 2 }, { n: 5, d: 4 }, { n: 7, d: 4 }, { n: 6, d: 5 }, { n: 7, d: 5 }, { n: 8, d: 5 }, { n: 9, d: 5 }, { n: 11, d: 10 }, { n: 13, d: 10 }, { n: 17, d: 10 }, { n: 19, d: 10 } ].map(f => ({ fraction: { numerator: f.n, denominator: f.d }, decimal: f.n / f.d, percentage: Math.round((f.n / f.d) * 100), original: f }));
           
           const simpleFractions = [ { n: 1, d: 2 }, { n: 1, d: 3 }, { n: 2, d: 3 }, { n: 1, d: 4 }, { n: 3, d: 4 }, { n: 1, d: 5 }, { n: 2, d: 5 }, { n: 3, d: 5 }, { n: 4, d: 5 }, { n: 1, d: 6 }, { n: 5, d: 6 }, { n: 1, d: 7 }, { n: 2, d: 7 }, { n: 3, d: 7 }, { n: 4, d: 7 }, { n: 5, d: 7 }, { n: 6, d: 7 }, { n: 1, d: 9 }, { n: 2, d: 9 }, { n: 4, d: 9 }, { n: 5, d: 9 }, { n: 7, d: 9 }, { n: 8, d: 9 }, { n: 1, d: 10 }, { n: 3, d: 10 }, { n: 7, d: 10 }, { n: 9, d: 10 }, { n: 1, d: 11 }, { n: 1, d: 12 }, { n: 5, d: 12 }, { n: 7, d: 12 }, { n: 11, d: 12 } ];
           
@@ -424,7 +424,7 @@
               const explanationTable = sorted.map(item => `
                   <tr>
                       <td class="p-2 border-r text-center">${item.type === 'fraction' ? `(fraction)` : item.value}</td>
-                      <td class="p-2 text-center font-semibold text-purple-700">${item.originalValue * 100}%</td>
+                      <td class="p-2 text-center font-semibold text-purple-700">${Math.round(item.originalValue * 100)}%</td>
                   </tr>
               `).join('');
 
@@ -1586,29 +1586,45 @@
       };
 
       const FractionQuestionCard = ({ question, onSubmit, onIncorrect, answerStatus: initialStatus, correctAnswer, colorTheme }) => {
-          const [num, setNum] = useState('');
-          const [den, setDen] = useState('');
+          const [fraction, setFraction] = useState('');
           const [answerStatus, setAnswerStatus] = useState(initialStatus || AnswerStatus.UNANSWERED);
-          const numRef = useRef(null);
+          const inputRef = useRef(null);
 
           useEffect(() => {
-              setNum(''); setDen(''); setAnswerStatus(AnswerStatus.UNANSWERED);
-              if (numRef.current) numRef.current.focus();
+              setFraction(''); setAnswerStatus(AnswerStatus.UNANSWERED);
+              if (inputRef.current) inputRef.current.focus();
           }, [question]);
 
           useEffect(() => { setAnswerStatus(initialStatus); }, [initialStatus]);
 
+          const evaluateFraction = (fractionStr) => {
+              if (typeof fractionStr !== 'string') return NaN;
+              const parts = fractionStr.split('/');
+              if (parts.length !== 2) return NaN;
+              const num = parseFloat(parts[0]);
+              const den = parseFloat(parts[1]);
+              if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+              return num / den;
+          };
+
           const handleSubmit = (e) => {
               e.preventDefault();
-              if (num === '' || den === '') return;
-              const answer = `${num}/${den}`;
-              const isCorrect = answer === question.answer;
+              if (fraction === '' || !fraction.includes('/')) return;
+              
+              const userValue = evaluateFraction(fraction);
+              const correctValue = evaluateFraction(question.answer);
+              
+              const isCorrect = Math.abs(userValue - correctValue) < 0.0001;
+
               setAnswerStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
-              onSubmit(isCorrect, answer);
+              onSubmit(isCorrect, fraction);
           };
           
-          const statusRingClass = answerStatus === AnswerStatus.CORRECT ? 'ring-green-500' : answerStatus === AnswerStatus.INCORRECT ? 'ring-red-500' : 'ring-slate-300';
-          const statusBgClass = answerStatus === AnswerStatus.CORRECT ? 'bg-green-50' : answerStatus === AnswerStatus.INCORRECT ? 'bg-red-50' : 'bg-white';
+          const statusClasses = {
+              [AnswerStatus.CORRECT]: 'ring-green-500 bg-green-50',
+              [AnswerStatus.INCORRECT]: 'ring-red-500 bg-red-50',
+              [AnswerStatus.UNANSWERED]: 'ring-slate-300'
+          };
           const themeFocusClass = `focus-within:ring-${colorTheme === 'fractions' ? 'purple' : 'blue'}-500`;
 
           return (
@@ -1617,10 +1633,16 @@
                       <div className="text-center text-3xl font-bold text-slate-800 mb-6 min-h-[40px] flex items-center justify-center">
                           {question.text}
                       </div>
-                      <div className={`flex items-center justify-center space-x-2 p-2 rounded-lg ring-2 transition-all ${statusRingClass} ${answerStatus === AnswerStatus.UNANSWERED ? themeFocusClass : ''} ${statusBgClass}`}>
-                          <input ref={numRef} type="number" value={num} onChange={e => setNum(e.target.value)} disabled={answerStatus === AnswerStatus.CORRECT} className="w-24 text-center text-3xl font-mono bg-transparent p-2 focus:outline-none" placeholder="n"/>
-                          <span className="text-3xl font-mono text-slate-400">/</span>
-                          <input type="number" value={den} onChange={e => setDen(e.target.value)} disabled={answerStatus === AnswerStatus.CORRECT} className="w-24 text-center text-3xl font-mono bg-transparent p-2 focus:outline-none" placeholder="d"/>
+                      <div className={`ring-2 rounded-lg p-1 transition-all duration-200 ${statusClasses[answerStatus]} ${answerStatus === AnswerStatus.UNANSWERED ? themeFocusClass : ''}`}>
+                          <input 
+                              ref={inputRef} 
+                              type="text" 
+                              value={fraction} 
+                              onChange={e => setFraction(e.target.value)} 
+                              disabled={answerStatus === AnswerStatus.CORRECT} 
+                              className="w-full text-center text-3xl font-mono bg-transparent p-3 focus:outline-none"
+                              placeholder="n/d"
+                          />
                       </div>
                       {answerStatus === AnswerStatus.INCORRECT && (
                           <div className="text-center mt-4 animate-fade-in">
@@ -1630,7 +1652,7 @@
                           </div>
                       )}
                       {answerStatus === AnswerStatus.UNANSWERED && (
-                          <Button fullWidth className="mt-6" disabled={!num || !den} colorTheme={colorTheme}>Submit Answer</Button>
+                          <Button fullWidth className="mt-6" disabled={!fraction} colorTheme={colorTheme}>Submit Answer</Button>
                       )}
                   </form>
               </div>
@@ -1640,19 +1662,27 @@
       const ConversionQuestionCard = ({ question, onSubmit, onIncorrect, colorTheme }) => {
           const [decimal, setDecimal] = useState('');
           const [percentage, setPercentage] = useState('');
-          const [fractionNum, setFractionNum] = useState('');
-          const [fractionDen, setFractionDen] = useState('');
+          const [fraction, setFraction] = useState('');
           const [answerStatus, setAnswerStatus] = useState({ decimal: AnswerStatus.UNANSWERED, percentage: AnswerStatus.UNANSWERED, fraction: AnswerStatus.UNANSWERED });
 
           const firstInputRef = useRef(null);
           useEffect(() => { 
             setDecimal('');
             setPercentage('');
-            setFractionNum('');
-            setFractionDen('');
+            setFraction('');
             setAnswerStatus({ decimal: AnswerStatus.UNANSWERED, percentage: AnswerStatus.UNANSWERED, fraction: AnswerStatus.UNANSWERED });
             if (firstInputRef.current) firstInputRef.current.focus(); 
           }, [question]);
+
+          const evaluateFraction = (fractionStr) => {
+              if (typeof fractionStr !== 'string') return NaN;
+              const parts = fractionStr.split('/');
+              if (parts.length !== 2) return NaN;
+              const num = parseFloat(parts[0]);
+              const den = parseFloat(parts[1]);
+              if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+              return num / den;
+          };
 
           const handleSubmit = (e) => {
               e.preventDefault();
@@ -1670,7 +1700,9 @@
                   if(isCorrect) correctCount++;
               }
               if (question.answer.fraction !== undefined) {
-                  const isCorrect = `${fractionNum}/${fractionDen}` === question.answer.fraction;
+                  const userValue = evaluateFraction(fraction);
+                  const correctValue = evaluateFraction(question.answer.fraction);
+                  const isCorrect = Math.abs(userValue - correctValue) < 0.0001;
                   newStatus.fraction = isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT;
                   if (isCorrect) correctCount++;
               }
@@ -1683,24 +1715,16 @@
           
           const isSubmitted = Object.values(answerStatus).some(s => s !== AnswerStatus.UNANSWERED);
           const correctCount = Object.keys(question.answer).reduce((count, key) => (answerStatus[key] === AnswerStatus.CORRECT ? count + 1 : count), 0);
-          const isAllCorrect = correctCount === Object.keys(question.answer).length;
+          const isAllCorrect = correctCount > 0 && correctCount === Object.keys(question.answer).length;
           const isDisabled = isAllCorrect;
-
 
           const themeFocusClass = `focus-within:ring-${colorTheme === 'fractions' ? 'purple' : 'blue'}-500`;
 
           const renderInput = (type) => {
-              const status = answerStatus[type];
               switch(type){
                   case 'decimal': return <input ref={firstInputRef} type="number" step="any" value={decimal} onChange={e => setDecimal(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0.00" disabled={isDisabled}/>
                   case 'percentage': return <input ref={!question.answer.decimal ? firstInputRef : null} type="number" value={percentage} onChange={e => setPercentage(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0" disabled={isDisabled}/>
-                  case 'fraction': return (
-                      <div className="flex items-center justify-center space-x-2">
-                          <input ref={!question.answer.decimal && !question.answer.percentage ? firstInputRef : null} type="number" value={fractionNum} onChange={e => setFractionNum(e.target.value)} className="w-20 text-center text-xl font-mono bg-transparent p-1 focus:outline-none" placeholder="n" disabled={isDisabled}/>
-                           <span className="text-xl font-mono text-slate-400">/</span>
-                          <input type="number" value={fractionDen} onChange={e => setFractionDen(e.target.value)} className="w-20 text-center text-xl font-mono bg-transparent p-1 focus:outline-none" placeholder="d" disabled={isDisabled}/>
-                      </div>
-                  );
+                  case 'fraction': return <input ref={!question.answer.decimal && !question.answer.percentage ? firstInputRef : null} type="text" value={fraction} onChange={e => setFraction(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="n/d" disabled={isDisabled}/>
               }
           }
 
@@ -1738,10 +1762,16 @@
       };
 
       const OrderingQuestionCard = ({ question, onSubmit, onIncorrect, isChallengeMode = false, colorTheme }) => {
-          const [items, setItems] = useState(question.items);
+          const [items, setItems] = useState([]);
           const [orderedItems, setOrderedItems] = useState(Array(5).fill(null));
           const [draggedItem, setDraggedItem] = useState(null);
           const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+
+          useEffect(() => {
+              setItems(question.items);
+              setOrderedItems(Array(5).fill(null));
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+          }, [question]);
 
           const handleDragStart = (e, item, source, index) => {
               setDraggedItem({ item, source, index });
@@ -1812,9 +1842,6 @@
                                   {orderedItems[i] && <div className="w-full" draggable onDragStart={e => handleDragStart(e, orderedItems[i], 'ordered', i)}>{renderItem(orderedItems[i])}</div>}
                               </div>
                           ))}
-                           {['50%', '100%', '150%'].map((val, i) => (
-                                <div key={val} className="absolute left-[-40px] right-[-40px] text-xs text-slate-400 text-center border-t border-dashed" style={{ top: `${38 + (i * 72) + 36}px` }}>{val}</div>
-                           ))}
                       </div>
                   </div>
                   {answerStatus === AnswerStatus.INCORRECT && (
@@ -1878,15 +1905,9 @@
           const renderToken = (token, index, equation) => {
                if(token.isImplied) return null;
 
-               const isExponentNumber = equation[index-1] && equation[index-1].value === '^';
-               if(isExponentNumber) {
-                   return <sup key={index} className="text-2xl -top-3 relative">{token.value}</sup>
-               }
-               
-               const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value === '^' ? '' : token.value;
-
-               if (token.type === 'operator' && token.value !== '^') {
+               if (token.type === 'operator') {
                    const isClickable = status === AnswerStatus.UNANSWERED;
+                   const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
                    return (
                        <button key={index} type="button" disabled={!isClickable} onClick={() => handleOpClick(index)}
                            className={`font-bold text-3xl p-1 rounded-md transition-colors mx-1 ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'}`}>
@@ -1894,7 +1915,13 @@
                        </button>
                    );
                }
-               return <span key={index} className="text-3xl">{displayValue}</span>;
+               
+               const isExponentValue = equation[index-1] && equation[index-1].value === '^';
+               if(isExponentValue) {
+                   return <sup key={index} className="text-2xl -top-3 relative">{token.value}</sup>
+               }
+               
+               return <span key={index} className="text-3xl">{token.value}</span>;
           };
           
           const getStepType = (op) => {
@@ -1956,7 +1983,7 @@
                                    if (nextStepInfo.subProblem[index-1] && nextStepInfo.subProblem[index-1].value === '^') {
                                        return <sup key={index} className="text-xl -top-2 relative">{token.value}</sup>;
                                    }
-                                   const display = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value === '^' ? '' : token.value;
+                                   const display = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
                                    return <span key={index}>{display} </span>;
                                })}
                                </span>
