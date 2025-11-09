@@ -47,9 +47,9 @@
       import ReactDOM from 'https://esm.sh/react-dom@18.2.0/client';
 
       // --- CONSTANTS ---
-      const SQUARES_MAX = 10;
-      const CUBES_MAX = 5;
-      const SQUARE_ROOTS_MAX = 10;
+      const SQUARES_MAX = 12;
+      const CUBES_MAX = 7;
+      const SQUARE_ROOTS_MAX = 12;
       const CHALLENGE_DURATION_SECONDS = 60;
       const ORDERING_CHALLENGE_DURATION_SECONDS = 180;
       const BEDMAS_CHALLENGE_DURATION_SECONDS = 120;
@@ -75,415 +75,385 @@
       const AnswerStatus = { UNANSWERED: 0, CORRECT: 1, INCORRECT: 2, PARTIAL: 3 };
 
       // --- ICONS ---
-      const SquareIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          <text x="12" y="16" fontSize="10" fontWeight="bold" fill="currentColor" textAnchor="middle">x²</text>
-        </svg>
-      );
-      const CubeIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          <text x="12" y="16" fontSize="10" fontWeight="bold" fill="currentColor" textAnchor="middle">x³</text>
-        </svg>
-      );
-      const SquareRootIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.5 L11 15 L12 10 L14 15 L15 12.5" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12.5 H 16" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 15 H 9" />
-        </svg>
-      );
-      const TimerIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h6m6 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      );
-      const TrophyIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}>
-          <style>{`@keyframes trophy-shine { 0%, 100% { transform: scale(1) rotate(-5deg); opacity: 0.8; } 50% { transform: scale(1.1) rotate(5deg); opacity: 1; } } .trophy-animated { animation: trophy-shine 2s ease-in-out infinite; }`}</style>
-          <g className="trophy-animated"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9a2.25 2.25 0 0 0 0 4.5h9a2.25 2.25 0 0 0 0-4.5ZM12 14.25V18.75M8.25 9.75h7.5V15a3 3 0 0 1-3 3h-1.5a3 3 0 0 1-3-3V9.75Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 9.75H4.5a1.5 1.5 0 0 0-1.5 1.5v1.5a1.5 1.5 0 0 0 1.5 1.5H6m12 0h1.5a1.5 1.5 0 0 0 1.5-1.5v-1.5a1.5 1.5 0 0 0-1.5-1.5H18" /><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 6.75a1.5 1.5 0 0 1 1.5-1.5h1.5a1.5 1.5 0 0 1 1.5 1.5v3H9.75v-3Z" /></g>
-        </svg>
-      );
-      const CheckCircleIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75l3 3 6-6" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      );
-      const XCircleIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-6 6m0-6l6 6" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-      );
-      const HomeIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
-      );
-      const TargetIcon = (props) => (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2m0 14v2m-9-9h2m14 0h2" /></svg>
-      );
-
+      const SquareIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><text x="12" y="16" fontSize="10" fontWeight="bold" fill="currentColor" textAnchor="middle">x²</text></svg> );
+      const CubeIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><text x="12" y="16" fontSize="10" fontWeight="bold" fill="currentColor" textAnchor="middle">x³</text></svg> );
+      const SquareRootIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.5 L11 15 L12 10 L14 15 L15 12.5" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12.5 H 16" /><path strokeLinecap="round" strokeLinejoin="round" d="M8 15 H 9" /></svg> );
+      const TimerIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h6m6 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> );
+      const TrophyIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><style>{`@keyframes trophy-shine { 0%, 100% { transform: scale(1) rotate(-5deg); opacity: 0.8; } 50% { transform: scale(1.1) rotate(5deg); opacity: 1; } } .trophy-animated { animation: trophy-shine 2s ease-in-out infinite; }`}</style><g className="trophy-animated"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9a2.25 2.25 0 0 0 0 4.5h9a2.25 2.25 0 0 0 0-4.5ZM12 14.25V18.75M8.25 9.75h7.5V15a3 3 0 0 1-3 3h-1.5a3 3 0 0 1-3-3V9.75Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M6 9.75H4.5a1.5 1.5 0 0 0-1.5 1.5v1.5a1.5 1.5 0 0 0 1.5 1.5H6m12 0h1.5a1.5 1.5 0 0 0 1.5-1.5v-1.5a1.5 1.5 0 0 0-1.5-1.5H18" /><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 6.75a1.5 1.5 0 0 1 1.5-1.5h1.5a1.5 1.5 0 0 1 1.5 1.5v3H9.75v-3Z" /></g></svg> );
+      const CheckCircleIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75l3 3 6-6" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> );
+      const XCircleIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15 9l-6 6m0-6l6 6" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg> );
+      const HomeIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg> );
+      const TargetIcon = (props) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2m0 14v2m-9-9h2m14 0h2" /></svg> );
+      
       // --- QUESTION GENERATOR ---
       const {
-        generateQuestion,
-        generateSkillCheckQuestions,
-        generateConversionSkillCheckQuestions,
-        generateRandomConversionQuestionForChallenge,
-        generateBedmasChallengeQuestion,
+          generateQuestion,
+          generateSkillCheckQuestions,
+          generateRoundingSkillCheckQuestions,
+          generateConversionSkillCheckQuestions,
+          generateRandomConversionQuestionForChallenge,
+          generateOrderingQuestion,
+          generateBedmasQuestion,
+          generateBedmasChallengeQuestion,
       } = (() => {
-        // --- Helper Functions ---
-        const formatNumber = (num) => new Intl.NumberFormat('en-US').format(num);
-        const hcf = (a, b) => b === 0 ? a : hcf(b, a % b);
-        const shuffleArray = (array) => {
-            let newArr = [...array];
-            for (let i = newArr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-            }
-            return newArr;
-        };
-
-        // --- Explanation Generators ---
-        const generateRoundingExplanation = (original, rounded, placeName, decidingDigit, decidingDigitIndex) => {
-            const isDecimal = original % 1 !== 0;
-            const numAsString = String(original);
-            const decidingDigitString = String(decidingDigit);
-            let highlightedNum = '';
-            
-            if (isDecimal) {
-                const [integerPart, decimalPart] = numAsString.split('.');
-                const adjustedIndex = decidingDigitIndex - integerPart.length - 1;
-                highlightedNum = `${integerPart}.<span class="text-blue-600 font-bold">${decimalPart.substring(0, adjustedIndex)}</span><span class="text-red-600 font-bold underline">${decimalPart[adjustedIndex]}</span>${decimalPart.substring(adjustedIndex + 1)}`;
-            } else {
-                highlightedNum = `${numAsString.substring(0, decidingDigitIndex)}<span class="text-red-600 font-bold underline">${numAsString[decidingDigitIndex]}</span>${numAsString.substring(decidingDigitIndex + 1)}`;
-            }
-
-            const rule = decidingDigit >= 5 ? 'greater than or equal to 5, so we round up' : 'less than 5, so we round down';
-
-            return `
-                <div class="space-y-2 text-left">
-                    <p>To round <strong>${formatNumber(original)}</strong> to the nearest ${placeName}:</p>
-                    <ol class="list-decimal list-inside space-y-1">
-                        <li>We look at the digit to the right of the ${placeName} place.</li>
-                        <li>In the number ${highlightedNum}, this digit is <strong>${decidingDigitString}</strong>.</li>
-                        <li>The rule is: if the digit is 5 or more, round up; if it's less than 5, round down.</li>
-                        <li>Since <strong>${decidingDigitString}</strong> is ${rule}, the number rounds to <strong>${formatNumber(rounded)}</strong>.</li>
-                    </ol>
-                </div>
-            `;
-        };
-
-        const generateFractionExplanation = (numerator, denominator, divisor, newNumerator, newDenominator) => {
-            const link = `
-              <a href="https://manakouri.github.io/factors_primes_multiples/" target="_blank" rel="noopener noreferrer" class="mt-4 block text-center px-4 py-2 bg-purple-100 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 transition-colors">
-                Practice finding the HCF? Play HCF Heights in the Factors, Primes and Multiples Arena!
-              </a>
-            `;
-            return `
-                <div class="space-y-2 text-left">
-                    <p>To simplify the fraction <strong><sup>${numerator}</sup>/<sub>${denominator}</sub></strong>:</p>
-                    <ol class="list-decimal list-inside space-y-1">
-                        <li>Find the Highest Common Factor (HCF) of the numerator (${numerator}) and the denominator (${denominator}).</li>
-                        <li>The HCF of ${numerator} and ${denominator} is <strong>${divisor}</strong>.</li>
-                        <li>Divide both the numerator and the denominator by the HCF.</li>
-                        <li>${numerator} ÷ ${divisor} = <strong>${newNumerator}</strong></li>
-                        <li>${denominator} ÷ ${divisor} = <strong>${newDenominator}</strong></li>
-                        <li>The simplified fraction is <strong><sup>${newNumerator}</sup>/<sub>${newDenominator}</sub></strong>.</li>
-                    </ol>
-                    ${link}
-                </div>
-            `;
-        };
-        
-        const conversionValues = [
-          { n: 1, d: 2 }, { n: 1, d: 4 }, { n: 3, d: 4 }, { n: 1, d: 5 }, { n: 2, d: 5 },
-          { n: 3, d: 5 }, { n: 4, d: 5 }, { n: 1, d: 10 }, { n: 3, d: 10 }, { n: 7, d: 10 }, { n: 9, d: 10 },
-          { n: 1, d: 20 }, { n: 3, d: 20 }, { n: 7, d: 20 }, { n: 9, d: 20 }, { n: 11, d: 20 },
-          { n: 13, d: 20 }, { n: 17, d: 20 }, { n: 19, d: 20 },
-          { n: 1, d: 25 }, { n: 2, d: 25 }, { n: 4, d: 25 }, { n: 6, d: 25 },
-          { n: 1, d: 50 },
-          { n: 3, d: 2 }, { n: 5, d: 4 }, { n: 7, d: 4 }, { n: 6, d: 5 }, { n: 7, d: 5 },
-          { n: 8, d: 5 }, { n: 9, d: 5 }, { n: 11, d: 10 }, { n: 13, d: 10 }, { n: 17, d: 10 }, { n: 19, d: 10 },
-          { n: 2, d: 1 }
-        ].map(f => ({
-            fraction: { numerator: f.n, denominator: f.d },
-            decimal: f.n / f.d,
-            percentage: (f.n / f.d) * 100
-        }));
-
-        // --- BEDMAS Generator ---
-        const OPERATORS = ['+', '-', '*', '/'];
-        const PRECEDENCE = { '+': 1, '-': 1, '*': 2, '/': 2, '^': 3 };
-
-        const evaluate = (a, b, op) => {
-            switch (op) {
-                case '+': return a + b;
-                case '-': return a - b;
-                case '*': return a * b;
-                case '/': return a / b;
-                case '^': return Math.pow(a, b);
-                default: return 0;
-            }
-        };
-
-        const generateBedmasQuestion = () => {
-          let attempts = 0;
-          while (attempts < 100) {
-              try {
-                  const result = buildRandomEquation(2);
-                  if (result) return result;
-              } catch (e) {
-                  // Ignore errors and try again
-              }
-              attempts++;
-          }
-          console.error("Failed to generate a valid BEDMAS question after 100 attempts.");
-          return null; // Fallback
-        };
-        
-        const buildRandomEquation = (depth) => {
-            const structureType = Math.random();
-            let equation = [];
-            if (depth > 0 && structureType < 0.4) { // Nested structure
-                const left = buildRandomEquation(depth - 1);
-                const right = buildRandomEquation(depth - 1);
-                const op = OPERATORS[Math.floor(Math.random() * OPERATORS.length)];
-                equation = [...left.tokens, { type: 'operator', value: op }, ...right.tokens];
-            } else if (depth > 0 && structureType < 0.7) { // Brackets
-                const inner = buildRandomEquation(depth - 1);
-                equation = [{ type: 'bracket', value: '(' }, ...inner.tokens, { type: 'bracket', value: ')' }];
-                if (Math.random() > 0.5) { // Add exponent to bracket
-                    equation.push({ type: 'operator', value: '^' }, { type: 'number', value: 2 });
-                }
-            } else { // Base case: number
-                equation = [{ type: 'number', value: Math.floor(Math.random() * 9) + 1 }];
-            }
-
-            // Add implied multiplication
-            if (equation[0].type === 'bracket' && Math.random() > 0.5) {
-                equation.unshift({ type: 'number', value: Math.floor(Math.random() * 4) + 2 });
-            }
-
-            return { tokens: equation };
-        };
-
-        const solveEquation = (tokens) => {
-            const steps = [];
-            let currentTokens = JSON.parse(JSON.stringify(tokens));
-
-            // Insert implied multiplication operators
-            for (let i = 0; i < currentTokens.length - 1; i++) {
-              if (currentTokens[i].type === 'number' && currentTokens[i+1].type === 'bracket' && currentTokens[i+1].value === '(') {
-                currentTokens.splice(i + 1, 0, { type: 'operator', value: '*', isImplied: true });
-              }
-            }
-
-            while (currentTokens.length > 1) {
-                const stepResult = solveNextStep(currentTokens);
-                if (!stepResult) { throw new Error("Could not solve next step"); }
-
-                const { newTokens, stepInfo } = stepResult;
-                steps.push({
-                    equation: JSON.parse(JSON.stringify(currentTokens)),
-                    ...stepInfo
-                });
-                currentTokens = newTokens;
-
-                if (currentTokens.some(t => typeof t.value !== 'number' && isNaN(t.value)) ||
-                    currentTokens.some(t => t.type === 'number' && (!Number.isInteger(t.value) || t.value < 0))
-                ) {
-                    throw new Error("Invalid intermediate result");
-                }
-            }
-            return { steps };
-        };
-
-        const findNextOpIndex = (tokens) => {
-            let bestOpIndex = -1;
-            let maxPrecedence = -1;
-            let inBrackets = 0;
-            let bracketDepth = 0;
-            let maxBracketDepth = -1;
-
-            for (let i = 0; i < tokens.length; i++) {
-                if (tokens[i].type === 'bracket' && tokens[i].value === '(') {
-                    inBrackets++;
-                } else if (tokens[i].type === 'bracket' && tokens[i].value === ')') {
-                    inBrackets--;
-                } else if (tokens[i].type === 'operator') {
-                    const precedence = PRECEDENCE[tokens[i].value];
-                    if (inBrackets > maxBracketDepth) {
-                        maxBracketDepth = inBrackets;
-                        maxPrecedence = precedence;
-                        bestOpIndex = i;
-                    } else if (inBrackets === maxBracketDepth) {
-                        if (precedence > maxPrecedence) {
-                            maxPrecedence = precedence;
-                            bestOpIndex = i;
-                        }
-                    }
-                }
-            }
-            return bestOpIndex;
-        };
-        
-        const solveNextStep = (tokens) => {
-            // Find brackets to solve first
-            let startBracket = -1, endBracket = -1;
-            let openBrackets = 0;
-            for(let i = 0; i < tokens.length; i++) {
-                if(tokens[i].value === '(') {
-                    startBracket = i;
-                    openBrackets = 1;
-                } else if (tokens[i].value === ')' && startBracket !== -1) {
-                    openBrackets--;
-                    if(openBrackets === 0) {
-                        endBracket = i;
-                        const subTokens = tokens.slice(startBracket + 1, endBracket);
-                        if(subTokens.length === 1 && subTokens[0].type === 'number') {
-                             const newTokens = [...tokens.slice(0, startBracket), subTokens[0], ...tokens.slice(endBracket + 1)];
-                             // Check for exponent on bracket
-                             if(newTokens[startBracket + 1]?.value === '^') {
-                                 const base = newTokens[startBracket].value;
-                                 const exponent = newTokens[startBracket + 2].value;
-                                 const result = Math.pow(base, exponent);
-                                 if (!Number.isInteger(result) || result < 0) throw new Error("Invalid Exponent result");
-                                 const finalTokens = [...newTokens.slice(0, startBracket), {type: 'number', value: result}, ...newTokens.slice(startBracket + 3)];
-                                 return {
-                                     newTokens: finalTokens,
-                                     stepInfo: { startIndex: startBracket, endIndex: startBracket + 2, answer: result, explanation: 'Exponents' }
-                                 }
-                             }
-                             return {
-                                 newTokens: newTokens,
-                                 stepInfo: { startIndex: startBracket, endIndex: endBracket, answer: subTokens[0].value, explanation: 'Brackets' }
-                             };
-                        }
-                    }
-                }
-            }
-
-            const opIndex = findNextOpIndex(tokens);
-            if (opIndex === -1) return null;
-
-            const op = tokens[opIndex].value;
-            const left = tokens[opIndex - 1].value;
-            const right = tokens[opIndex + 1].value;
-
-            if (op === '/' && (left % right !== 0 || right === 0)) {
-                throw new Error("Invalid division");
-            }
-
-            const result = evaluate(left, right, op);
-            if (!Number.isInteger(result) || result < 0) {
-                throw new Error("Invalid intermediate result");
-            }
-
-            const newTokens = [
-                ...tokens.slice(0, opIndex - 1),
-                { type: 'number', value: result },
-                ...tokens.slice(opIndex + 2)
-            ];
-
-            const explanationMap = { '^': 'Exponents', '*': 'Multiplication', '/': 'Division', '+': 'Addition', '-': 'Subtraction' };
-            
-            return {
-                newTokens,
-                stepInfo: {
-                    startIndex: opIndex - 1,
-                    endIndex: opIndex + 1,
-                    answer: result,
-                    explanation: explanationMap[op]
-                }
-            };
-        };
-
-        const questionGeneratorWrapper = (retries = 5) => {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const eq = buildRandomEquation(Math.floor(Math.random() * 2) + 1);
-                    const solution = solveEquation(eq.tokens);
-                    // Ensure the final answer is a single number.
-                    if (solution.steps.length > 0 && solution.steps[solution.steps.length - 1].answer !== undefined) {
-                        return { initialEquation: eq.tokens, steps: solution.steps };
-                    }
-                } catch (e) {
-                    // console.warn("Equation generation failed, retrying...", e.message);
-                }
-            }
-            return null; // Return null if all retries fail
-        };
-        
-        // --- Main Question Generators ---
-        const generateQuestion = (mode) => {
-            const id = `${Date.now()}-${Math.random()}`;
-            // ... (The entire switch statement from the original file goes here)
-            switch (mode) {
-                case GameMode.SQUARES: {
-                    const n = Math.floor(Math.random() * SQUARES_MAX) + 1;
-                    return { id, text: <>{n}<sup>2</sup></>, answer: n * n, type: mode };
-                }
-                case GameMode.CUBES: {
-                    const n = Math.floor(Math.random() * CUBES_MAX) + 1;
-                    return { id, text: <>{n}<sup>3</sup></>, answer: n * n * n, type: mode };
-                }
-                case GameMode.SQUARE_ROOTS: {
-                    const n = Math.floor(Math.random() * SQUARE_ROOTS_MAX) + 1;
-                    return { id, text: <>&#8730;{n * n}</>, answer: n, type: mode };
-                }
-                case GameMode.BEDMAS: {
-                    const bedmasQuestion = questionGeneratorWrapper();
-                    if (!bedmasQuestion) {
-                      // Fallback for safety, though it should rarely be needed.
-                      return generateQuestion(GameMode.SQUARES);
-                    }
-                    return { id, text: 'Solve the equation step-by-step.', answer: bedmasQuestion, type: mode };
-                }
-                // --- All other game modes would be here ---
-                default:
-                    return {id, text: `No question for ${mode}`, answer: 0, type: mode};
-            }
-        };
-
-        const generateSkillCheckQuestions = (type) => { /* ... full logic ... */ return []; };
-        const generateConversionSkillCheckQuestions = (type) => { /* ... full logic ... */ return []; };
-        const generateRandomConversionQuestionForChallenge = () => { /* ... full logic ... */ return generateQuestion(GameMode.SQUARES); };
-        
-        const generateBedmasChallengeQuestion = () => {
-          const bedmasQuestion = questionGeneratorWrapper();
-          if (!bedmasQuestion) return generateQuestion(GameMode.SQUARES);
-
-          const finalStep = bedmasQuestion.steps[bedmasQuestion.steps.length - 1];
-          if (!finalStep) return generateQuestion(GameMode.SQUARES);
-
-          const renderToken = (token, index) => {
-            if (token.type === 'operator' && token.value === '*') return <span key={index} className="mx-1 font-semibold">&times;</span>;
-            if (token.type === 'operator' && token.value === '/') return <span key={index} className="mx-1 font-semibold">&divide;</span>;
-            if (token.type === 'operator') return <span key={index} className="mx-1 font-semibold">{token.value}</span>;
-            if (token.type === 'bracket') return <span key={index} className="mx-0 font-semibold">{token.value}</span>;
-            
-            // Check for exponent
-            const nextToken = bedmasQuestion.initialEquation[index + 1];
-            if (nextToken && nextToken.type === 'operator' && nextToken.value === '^') {
-              const exponent = bedmasQuestion.initialEquation[index + 2];
-              return <span key={index}>{token.value}<sup>{exponent.value}</sup></span>;
-            }
-             // if previous token was exponent, this has been handled already
-            const prevToken = bedmasQuestion.initialEquation[index-1];
-            if (prevToken && prevToken.type === 'operator' && prevToken.value === '^') {
-                return null;
-            }
-
-            return <span key={index}>{token.value}</span>;
+          const formatNumber = (num) => new Intl.NumberFormat('en-US').format(num);
+          const hcf = (a, b) => b === 0 ? a : hcf(b, a % b);
+          const shuffleArray = (array) => {
+              let newArr = [...array]; for (let i = newArr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[newArr[i], newArr[j]] = [newArr[j], newArr[i]]; } return newArr;
           };
 
-          const questionText = <div className="text-3xl font-bold tracking-wider flex items-center justify-center">{bedmasQuestion.initialEquation.map(renderToken)}</div>;
+          const generateRoundingExplanation = (original, rounded, placeName, decidingDigit, decidingDigitIndex) => {
+              const strOriginal = String(original);
+              const isDecimal = strOriginal.includes('.');
+              const isWhole = !isDecimal;
+              
+              const highlightedOriginal = strOriginal.split('').map((char, index) => {
+                  if (index === decidingDigitIndex) return `<span class="font-bold text-red-500">${char}</span>`;
+                  return char;
+              }).join('');
+
+              const rule = decidingDigit >= 5 ? `Since ${decidingDigit} is 5 or greater, we round up.` : `Since ${decidingDigit} is less than 5, we round down.`;
+              
+              return `
+                  <div class="space-y-2 text-left">
+                      <p>To round ${original} to the nearest ${placeName}, we look at the digit to its right.</p>
+                      <p class="font-mono text-center my-2 text-lg">${highlightedOriginal}</p>
+                      <p>The deciding digit is ${decidingDigit}. ${rule}</p>
+                      <p>So, ${original} rounded to the nearest ${placeName} is <strong>${rounded}</strong>.</p>
+                  </div>
+              `;
+          };
+
+          const generateFractionExplanation = (numerator, denominator, divisor, newNumerator, newDenominator) => {
+              return `
+                  <div class="space-y-2 text-left">
+                      <p>To simplify <sup>${numerator}</sup>/<sub>${denominator}</sub>, we find the Highest Common Factor (HCF) of the numerator and the denominator.</p>
+                      <p>The HCF of ${numerator} and ${denominator} is <strong>${divisor}</strong>.</p>
+                      <p>We divide both the numerator and the denominator by the HCF:</p>
+                      <p class="text-center text-lg my-2">
+                          <sup>${numerator} &divide; ${divisor}</sup> / <sub>${denominator} &divide; ${divisor}</sub> = <strong><sup>${newNumerator}</sup>/<sub>${newDenominator}</sub></strong>
+                      </p>
+                      <p>Want more practice? <a href="https://manakouri.github.io/factors_primes_multiples/" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-semibold hover:underline">Practice finding the HCF? Play HCF Heights in the Factors, Primes and Multiples Arena!</a></p>
+                  </div>
+              `;
+          };
+
+          const conversionValues = [ { n: 1, d: 2 }, { n: 1, d: 4 }, { n: 3, d: 4 }, { n: 1, d: 5 }, { n: 2, d: 5 }, { n: 3, d: 5 }, { n: 4, d: 5 }, { n: 1, d: 10 }, { n: 3, d: 10 }, { n: 7, d: 10 }, { n: 9, d: 10 }, { n: 1, d: 20 }, { n: 3, d: 20 }, { n: 7, d: 20 }, { n: 9, d: 20 }, { n: 11, d: 20 }, { n: 13, d: 20 }, { n: 17, d: 20 }, { n: 19, d: 20 }, { n: 1, d: 25 }, { n: 2, d: 25 }, { n: 4, d: 25 }, { n: 6, d: 25 }, { n: 1, d: 50 }, { n: 3, d: 2 }, { n: 5, d: 4 }, { n: 7, d: 4 }, { n: 6, d: 5 }, { n: 7, d: 5 }, { n: 8, d: 5 }, { n: 9, d: 5 }, { n: 11, d: 10 }, { n: 13, d: 10 }, { n: 17, d: 10 }, { n: 19, d: 10 } ].map(f => ({ fraction: { numerator: f.n, denominator: f.d }, decimal: f.n / f.d, percentage: (f.n / f.d) * 100, original: f }));
+          
+          const simpleFractions = [ { n: 1, d: 2 }, { n: 1, d: 3 }, { n: 2, d: 3 }, { n: 1, d: 4 }, { n: 3, d: 4 }, { n: 1, d: 5 }, { n: 2, d: 5 }, { n: 3, d: 5 }, { n: 4, d: 5 }, { n: 1, d: 6 }, { n: 5, d: 6 }, { n: 1, d: 7 }, { n: 2, d: 7 }, { n: 3, d: 7 }, { n: 4, d: 7 }, { n: 5, d: 7 }, { n: 6, d: 7 }, { n: 1, d: 9 }, { n: 2, d: 9 }, { n: 4, d: 9 }, { n: 5, d: 9 }, { n: 7, d: 9 }, { n: 8, d: 9 }, { n: 1, d: 10 }, { n: 3, d: 10 }, { n: 7, d: 10 }, { n: 9, d: 10 }, { n: 1, d: 11 }, { n: 1, d: 12 }, { n: 5, d: 12 }, { n: 7, d: 12 }, { n: 11, d: 12 } ];
+          
+          const OPERATORS = ['+', '-', '*', '/']; const PRECEDENCE = { '+': 1, '-': 1, '*': 2, '/': 2, '^': 3 };
+          const evaluate = (a, b, op) => { switch (op) { case '+': return a + b; case '-': return a - b; case '*': return a * b; case '/': return a / b; case '^': return Math.pow(a, b); default: return 0; } };
+
+          const buildRandomEquation = (depth) => {
+              if (depth === 0) {
+                  return [{ type: 'number', value: Math.floor(Math.random() * 9) + 1 }];
+              }
+              
+              const type = Math.random();
+              if (type < 0.6) { // Binary operation
+                  const left = buildRandomEquation(depth - 1);
+                  const right = buildRandomEquation(depth - 1);
+                  const op = OPERATORS[Math.floor(Math.random() * OPERATORS.length)];
+                  return [...left, { type: 'operator', value: op }, ...right];
+              } else if (type < 0.8 && depth > 1) { // Brackets
+                  const content = buildRandomEquation(depth - 1);
+                  return [{ type: 'bracket', value: '(' }, ...content, { type: 'bracket', value: ')' }];
+              } else { // Exponent
+                  const base = buildRandomEquation(0); 
+                  const exponentValue = Math.random() < 0.8 ? 2 : 3;
+                  return [...base, { type: 'operator', value: '^' }, { type: 'number', value: exponentValue }];
+              }
+          };
+
+          const solveEquation = (tokens) => {
+              const values = []; const ops = [];
+              const applyOp = () => {
+                  const op = ops.pop();
+                  const b = values.pop(); const a = values.pop();
+                  const result = evaluate(a, b, op);
+                  if (!Number.isInteger(result) || result < 0) throw new Error("Invalid intermediate result");
+                  values.push(result);
+              };
+
+              for (let i = 0; i < tokens.length; i++) {
+                  const token = tokens[i];
+                  if (token.type === 'number') {
+                      values.push(token.value);
+                      if (i + 1 < tokens.length && tokens[i+1].type === 'bracket' && tokens[i+1].value === '(') {
+                          ops.push('*');
+                      }
+                  } else if (token.type === 'bracket' && token.value === '(') {
+                      ops.push(token.value);
+                      if (i > 0 && tokens[i-1].type === 'bracket' && tokens[i-1].value === ')') {
+                          ops.push('*');
+                      }
+                  } else if (token.type === 'bracket' && token.value === ')') {
+                      while (ops[ops.length - 1] !== '(') applyOp();
+                      ops.pop();
+                      if (i + 1 < tokens.length && tokens[i+1].type === 'number') {
+                          ops.push('*');
+                      }
+                  } else if (token.type === 'operator') {
+                      while (ops.length && PRECEDENCE[ops[ops.length - 1]] >= PRECEDENCE[token.value]) applyOp();
+                      ops.push(token.value);
+                  }
+              }
+              while (ops.length) applyOp();
+              return values[0];
+          };
+
+          const findNextStep = (tokens) => {
+              let bestOpIndex = -1; let bestPrecedence = -1; let bestDepth = -1;
+              let bracketDepth = 0;
+              for (let i = 0; i < tokens.length; i++) {
+                  if (tokens[i].type === 'bracket' && tokens[i].value === '(') bracketDepth++;
+                  else if (tokens[i].type === 'bracket' && tokens[i].value === ')') bracketDepth--;
+                  else if (tokens[i].type === 'operator') {
+                      const precedence = PRECEDENCE[tokens[i].value];
+                      if (bracketDepth > bestDepth || (bracketDepth === bestDepth && precedence > bestPrecedence)) {
+                          bestPrecedence = precedence; bestOpIndex = i; bestDepth = bracketDepth;
+                      }
+                  }
+              }
+              if (bestOpIndex === -1) return null;
+              
+              let start = bestOpIndex - 1; let end = bestOpIndex + 1;
+              if (tokens[start].type === 'bracket' && tokens[start].value === ')') {
+                  let openBrackets = 1; start--;
+                  while (openBrackets > 0 && start >= 0) {
+                      if (tokens[start].value === ')') openBrackets++;
+                      else if (tokens[start].value === '(') openBrackets--;
+                      start--;
+                  }
+                  start++;
+              }
+              if (tokens[end].type === 'bracket' && tokens[end].value === '(') {
+                  let closeBrackets = 1; end++;
+                  while (closeBrackets > 0 && end < tokens.length) {
+                      if (tokens[end].value === '(') closeBrackets++;
+                      else if (tokens[end].value === ')') closeBrackets--;
+                      end++;
+                  }
+                  end--;
+              }
+              return { opIndex: bestOpIndex, start, end };
+          };
+
+          const generateBedmasQuestion = () => {
+              let attempts = 0;
+              while (attempts < 100) {
+                  try {
+                      let equation = buildRandomEquation(Math.floor(Math.random() * 2) + 2);
+                      
+                      for(let i=0; i<equation.length - 1; i++){
+                          if(equation[i].type === 'number' && equation[i+1].type === 'bracket' && equation[i+1].value === '('){
+                               equation.splice(i+1, 0, { type: 'operator', value: '*', isImplied: true });
+                               i++;
+                          }
+                      }
+                      
+                      let currentEq = [...equation];
+                      const steps = [{ equation: [...currentEq] }];
+                      
+                      while (currentEq.length > 1) {
+                          const stepInfo = findNextStep(currentEq);
+                          if (!stepInfo) break;
+                          
+                          const subProblem = currentEq.slice(stepInfo.start, stepInfo.end + 1);
+                          const result = solveEquation(subProblem);
+                          if (!Number.isInteger(result) || result < 0) throw new Error("Invalid intermediate step");
+                          
+                          steps[steps.length - 1].nextStep = { ...stepInfo, answer: result, subProblem };
+                          
+                          const newEq = [...currentEq.slice(0, stepInfo.start), { type: 'number', value: result }, ...currentEq.slice(stepInfo.end + 1)];
+                          
+                          for(let i=0; i < newEq.length; i++) {
+                              if(newEq[i].type === 'operator' && newEq[i].isImplied) {
+                                  if(i > 0 && newEq[i-1].type === 'number' && i < newEq.length - 1 && newEq[i+1].type === 'number') {
+                                      delete newEq[i].isImplied;
+                                  }
+                              }
+                          }
+
+                          currentEq = newEq.filter(t => t.type !== 'bracket');
+                          steps.push({ equation: [...currentEq] });
+                      }
+
+                      if (currentEq.length === 1 && currentEq[0].type === 'number' && steps.length > 2 && currentEq[0].value > 0 && currentEq[0].value < 500) {
+                          return { steps, finalAnswer: currentEq[0].value };
+                      }
+                  } catch (e) { /* ignore and retry */ }
+                  attempts++;
+              }
+              return generateBedmasQuestion(); // Fallback to retry
+          };
+          
+          const generateBedmasChallengeQuestion = () => {
+              const bedmasQuestion = generateBedmasQuestion();
+              const equation = bedmasQuestion.steps[0].equation;
+              
+              const equationNode = (
+                  <div className="flex items-center justify-center space-x-1 text-2xl font-mono">
+                      {equation.map((token, index) => {
+                          if (token.isImplied) return null;
+                          if (token.type === 'operator' && token.value === '^') {
+                              return <sup key={index} className="text-xl -top-2 relative">2</sup>; // Simple display
+                          }
+                          const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
+                          return <span key={index}>{displayValue}</span>;
+                      })}
+                  </div>
+              );
+
+              return { id: `bedmas-challenge-${Date.now()}`, text: equationNode, answer: bedmasQuestion.finalAnswer, type: 'BEDMAS_CHALLENGE' };
+          };
+
+          const generateQuestion = (mode, usedAnswers = new Set()) => {
+              const id = `${Date.now()}-${Math.random()}`;
+              let question = null;
+              let attempts = 0;
+              while (attempts < 50) {
+                  switch (mode) {
+                      case GameMode.SQUARES: { const n = Math.floor(Math.random() * SQUARES_MAX) + 1; question = { id, text: <>{n}<sup>2</sup></>, answer: n * n, type: mode }; break; }
+                      case GameMode.CUBES: { const n = Math.floor(Math.random() * CUBES_MAX) + 1; question = { id, text: <>{n}<sup>3</sup></>, answer: n * n * n, type: mode }; break; }
+                      case GameMode.SQUARE_ROOTS: { const n = Math.floor(Math.random() * SQUARE_ROOTS_MAX) + 1; question = { id, text: <>&#8730;{n * n}</>, answer: n, type: mode }; break; }
+                      case GameMode.ROUND_TENS: { const n = Math.floor(Math.random() * 90) + 10; const ans = Math.round(n / 10) * 10; const d = n % 10; question = { id, text: `Round ${n} to the nearest 10`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'ten', d, 0), type: mode }; break; }
+                      case GameMode.ROUND_HUNDREDS: { const n = Math.floor(Math.random() * 900) + 100; const ans = Math.round(n / 100) * 100; const d = Math.floor((n % 100) / 10); question = { id, text: `Round ${n} to the nearest 100`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'hundred', d, 0), type: mode }; break; }
+                      case GameMode.ROUND_THOUSANDS: { const n = Math.floor(Math.random() * 9000) + 1000; const ans = Math.round(n / 1000) * 1000; const d = Math.floor((n % 1000) / 100); question = { id, text: `Round ${formatNumber(n)} to the nearest 1,000`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'thousand', d, String(n).length - 3), type: mode }; break; }
+                      case GameMode.ROUND_TEN_THOUSANDS: { const n = Math.floor(Math.random() * 90000) + 10000; const ans = Math.round(n / 10000) * 10000; const d = Math.floor((n % 10000) / 1000); question = { id, text: `Round ${formatNumber(n)} to the nearest 10,000`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'ten thousand', d, String(n).length - 4), type: mode }; break; }
+                      case GameMode.ROUND_HUNDRED_THOUSANDS: { const n = Math.floor(Math.random() * 900000) + 100000; const ans = Math.round(n / 100000) * 100000; const d = Math.floor((n % 100000) / 10000); question = { id, text: `Round ${formatNumber(n)} to the nearest 100,000`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'hundred thousand', d, String(n).length - 5), type: mode }; break; }
+                      case GameMode.ROUND_TENTHS: { const n = parseFloat((Math.random() * 9.9 + 0.1).toFixed(2)); const ans = parseFloat(n.toFixed(1)); const d = Math.floor((n * 100) % 10); question = { id, text: `Round ${n} to the nearest tenth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'tenth', d, String(n).indexOf('.') + 2), type: mode }; break; }
+                      case GameMode.ROUND_HUNDREDTHS: { const n = parseFloat((Math.random() * 9.99 + 0.01).toFixed(3)); const ans = parseFloat(n.toFixed(2)); const d = Math.floor((n * 1000) % 10); question = { id, text: `Round ${n} to the nearest hundredth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'hundredth', d, String(n).indexOf('.') + 3), type: mode }; break; }
+                      case GameMode.ROUND_THOUSANDTHS: { const n = parseFloat((Math.random() * 9.999 + 0.001).toFixed(4)); const ans = parseFloat(n.toFixed(3)); const d = Math.floor((n * 10000) % 10); question = { id, text: `Round ${n} to the nearest thousandth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'thousandth', d, String(n).indexOf('.') + 4), type: mode }; break; }
+                      case GameMode.SIMPLIFY_FRACTIONS: { const f = simpleFractions[Math.floor(Math.random() * simpleFractions.length)]; const m = Math.floor(Math.random() * 8) + 2; const num = f.n * m; const den = f.d * m; if (den > 100) { attempts++; continue; } const ans = `${f.n}/${f.d}`; question = { id, text: <>Simplify <sup>{num}</sup>/<sub>{den}</sub></>, answer: ans, explanation: generateFractionExplanation(num, den, hcf(num, den), f.n, f.d), type: mode }; break; }
+                      case GameMode.CONVERT_FRACTIONS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { decimal: val.decimal, percentage: val.percentage }; const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5; const text = showMixed ? <>{Math.floor(val.fraction.numerator / val.fraction.denominator)} <sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></> : <><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></>; question = { id, text, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the numerator by the denominator: ${val.fraction.numerator} &divide; ${val.fraction.denominator} = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div></div>` }; break; }
+                      case GameMode.CONVERT_DECIMALS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { fraction: `${val.fraction.numerator}/${val.fraction.denominator}`, percentage: val.percentage }; question = { id, text: `${val.decimal}`, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div><div><h4 class="font-semibold">To Fraction:</h4><p>${val.decimal} is equal to <sup>${val.decimal * 100}</sup>/<sub>100</sub>, which simplifies to <strong><sup>${val.fraction.numerator}</sup>/<sub>${val.fraction.denominator}</sub></strong>.</p></div></div>` }; break; }
+                      case GameMode.CONVERT_PERCENTAGES: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { fraction: `${val.fraction.numerator}/${val.fraction.denominator}`, decimal: val.decimal }; question = { id, text: `${val.percentage}%`, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the percentage by 100: ${val.percentage} &divide; 100 = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Fraction:</h4><p>${val.percentage}% is equal to <sup>${val.percentage}</sup>/<sub>100</sub>, which simplifies to <strong><sup>${val.fraction.numerator}</sup>/<sub>${val.fraction.denominator}</sub></strong>.</p></div></div>` }; break; }
+                      case GameMode.BEDMAS: { question = { id, text: 'Solve the equation step-by-step.', answer: generateBedmasQuestion(), type: mode }; break; }
+                  }
+                  if (question && !usedAnswers.has(JSON.stringify(question.answer))) { return question; }
+                  attempts++;
+              }
+              return generateQuestion(mode, new Set()); // Fallback
+          };
+
+          const generateSkillCheckQuestions = (modes) => {
+              const questions = []; const usedAnswers = new Set();
+              while (questions.length < 10) {
+                  const mode = modes[questions.length % modes.length];
+                  const q = generateQuestion(mode, usedAnswers);
+                  if (q && !usedAnswers.has(JSON.stringify(q.answer))) { questions.push(q); usedAnswers.add(JSON.stringify(q.answer)); }
+              }
+              return questions;
+          };
+          
+          const generateRoundingSkillCheckQuestions = (type) => {
+              const modes = type === 'whole' ? [GameMode.ROUND_TENS, GameMode.ROUND_HUNDREDS, GameMode.ROUND_THOUSANDS, GameMode.ROUND_TEN_THOUSANDS, GameMode.ROUND_HUNDRED_THOUSANDS] : [GameMode.ROUND_TENTHS, GameMode.ROUND_HUNDREDTHS, GameMode.ROUND_THOUSANDTHS];
+              const questions = []; const usedAnswers = new Set();
+              while (questions.length < 10) {
+                  const mode = modes[Math.floor(Math.random() * modes.length)];
+                  const q = generateQuestion(mode, usedAnswers);
+                  if (q && !usedAnswers.has(JSON.stringify(q.answer))) { questions.push(q); usedAnswers.add(JSON.stringify(q.answer)); }
+              }
+              return questions;
+          };
+
+          const generateConversionSkillCheckQuestions = (type) => {
+              const questions = []; const usedAnswers = new Set();
+              while (questions.length < 10) {
+                  const val = conversionValues[Math.floor(Math.random() * conversionValues.length)];
+                  let q;
+                  const conversionType = Math.random() > 0.5 ? 'decimal' : 'percentage';
+                  
+                  if (type === 'fractions') {
+                      const ans = conversionType === 'decimal' ? val.decimal : val.percentage;
+                      const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5;
+                      const text = showMixed ? <>{Math.floor(val.fraction.numerator/val.fraction.denominator)} <sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></> : <><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></>;
+                      q = { text: <>Convert {text} to a {conversionType}</>, answer: ans, skillCheckSubType: `Fraction to ${conversionType}` };
+                  } else if (type === 'decimals') {
+                      const ans = conversionType === 'percentage' ? val.percentage : `${val.fraction.numerator}/${val.fraction.denominator}`;
+                      q = { text: `Convert ${val.decimal} to a ${conversionType === 'percentage' ? 'percentage' : 'fraction'}`, answer: ans, skillCheckSubType: `Decimal to ${conversionType === 'percentage' ? 'percentage' : 'fraction'}` };
+                  } else { // percentages
+                      const ans = conversionType === 'decimal' ? val.decimal : `${val.fraction.numerator}/${val.fraction.denominator}`;
+                      q = { text: `Convert ${val.percentage}% to a ${conversionType === 'decimal' ? 'decimal' : 'fraction'}`, answer: ans, skillCheckSubType: `Percentage to ${conversionType === 'decimal' ? 'decimal' : 'fraction'}` };
+                  }
+                  
+                  if(q && !usedAnswers.has(JSON.stringify(q.answer))) {
+                      questions.push({ id: `${Date.now()}-${questions.length}`, ...q });
+                      usedAnswers.add(JSON.stringify(q.answer));
+                  }
+              }
+              return questions;
+          };
+          
+          const generateRandomConversionQuestionForChallenge = () => {
+              const type = ['fractions', 'decimals', 'percentages'][Math.floor(Math.random()*3)];
+              const [ question ] = generateConversionSkillCheckQuestions(type);
+              return question;
+          };
+
+          const generateOrderingQuestion = () => {
+              const shuffled = shuffleArray(conversionValues);
+              const items = shuffled.slice(0, 5).map((val, i) => {
+                  const typeChance = Math.random();
+                  let value;
+                  let type;
+                  if (typeChance < 0.33) {
+                      type = 'fraction';
+                      const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5;
+                      value = showMixed ?
+                          <>{Math.floor(val.fraction.numerator/val.fraction.denominator)} <span className="text-sm align-middle"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> :
+                          <><span className="text-lg"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span></>;
+                  } else if (typeChance < 0.66) {
+                      type = 'decimal';
+                      value = val.decimal;
+                  } else {
+                      type = 'percentage';
+                      value = `${val.percentage}%`;
+                  }
+                  return { id: `item-${i}`, value, type, originalValue: val.decimal };
+              });
+              
+              const sorted = [...items].sort((a, b) => a.originalValue - b.originalValue);
+              const answer = sorted.map(item => item.id);
+
+              const explanationTable = sorted.map(item => `
+                  <tr>
+                      <td class="p-2 border-r text-center">${item.type === 'fraction' ? `(fraction)` : item.value}</td>
+                      <td class="p-2 text-center font-semibold text-purple-700">${item.originalValue * 100}%</td>
+                  </tr>
+              `).join('');
+
+              const explanation = `
+                  <div class="space-y-3 text-left w-full">
+                      <p>To order these values, it's easiest to convert them all to the same format. Percentages are a good choice!</p>
+                      <div class="bg-purple-50 rounded-lg p-2">
+                          <table class="w-full border-collapse">
+                              <thead><tr><th class="p-2 border-b-2 border-purple-200">Original</th><th class="p-2 border-b-2 border-purple-200">As Percentage</th></tr></thead>
+                              <tbody>${explanationTable}</tbody>
+                          </table>
+                      </div>
+                      <p>Now we can easily see the correct order from smallest to largest.</p>
+                  </div>
+              `;
+
+              return { id: `ordering-${Date.now()}`, type: GameMode.ORDERING_FDP, items: shuffleArray(items), answer, explanation };
+          };
 
           return {
-            id: `${Date.now()}`,
-            text: questionText,
-            answer: finalStep.answer,
-            type: 'BEDMAS_CHALLENGE',
+              generateQuestion,
+              generateSkillCheckQuestions,
+              generateRoundingSkillCheckQuestions,
+              generateConversionSkillCheckQuestions,
+              generateRandomConversionQuestionForChallenge,
+              generateOrderingQuestion,
+              generateBedmasQuestion,
+              generateBedmasChallengeQuestion,
           };
-        };
-
-        return { generateQuestion, generateSkillCheckQuestions, generateConversionSkillCheckQuestions, generateRandomConversionQuestionForChallenge, generateBedmasChallengeQuestion };
       })();
 
-      // --- COMPONENTS ---
+      // --- ALL COMPONENTS ---
       const Button = ({ variant = 'primary', fullWidth = false, children, className, colorTheme = 'primary', ...props }) => {
         const baseClasses = "flex items-center justify-center px-6 py-3 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transform hover:-translate-y-px shadow-md hover:shadow-lg";
         const themeClasses = {
@@ -498,200 +468,1543 @@
           light: 'bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400 focus:ring-offset-slate-100',
           default: 'bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 focus:ring-blue-500 focus:ring-offset-slate-100',
         };
-        const fullWidthClass = fullWidth ? 'w-full' : '';
-        return <button className={`${baseClasses} ${variantClasses[variant]} ${fullWidthClass} ${className}`} {...props}>{children}</button>;
-      };
-
-      const Header = ({ onHomeClick, showHomeButton, colorTheme }) => {
-          const logoBgClasses = {
-              primary: 'bg-blue-600', powers: 'bg-gradient-to-br from-red-500 to-orange-500',
-              rounding: 'bg-gradient-to-br from-teal-500 to-green-500', fractions: 'bg-gradient-to-br from-purple-600 to-indigo-600',
-              bedmas: 'bg-gradient-to-br from-sky-500 to-cyan-500',
-          };
-          return (
-            <header className="w-full max-w-2xl mx-auto mb-6 flex items-center justify-between h-16">
-                <div className="flex items-center">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 font-bold text-xl shadow-lg text-white transition-colors duration-300 ${logoBgClasses[colorTheme]}`}>M7</div>
-                    <span className="text-2xl font-bold text-slate-900">Maths Skills - Stage 7</span>
-                </div>
-              {showHomeButton && <Button onClick={onHomeClick} variant="light" className="px-4 py-2 text-sm shadow-md"><HomeIcon className="w-5 h-5 mr-2" />Menu</Button>}
-            </header>
-          );
+        return <button className={`${baseClasses} ${variantClasses[variant]} ${fullWidth ? 'w-full' : ''} ${className}`} {...props}>{children}</button>;
       };
       
-      const QuestionCard = ({ question, onSubmit, status, correctAnswer, explanation, isChallengeMode = false, colorTheme = 'primary' }) => {
-        const [answer, setAnswer] = useState('');
-        const inputRef = useRef(null);
-        useEffect(() => {
-          setAnswer('');
-          if(inputRef.current) inputRef.current.focus();
-        }, [question.id]);
-        
-        const focusRingClasses = {
-            primary: 'focus:ring-blue-500', powers: 'focus:ring-red-500', rounding: 'focus:ring-green-500',
-            fractions: 'focus:ring-purple-500', bedmas: 'focus:ring-sky-500',
+      const Header = ({ onHomeClick, showHomeButton, colorTheme }) => {
+        const themeClasses = {
+            powers: 'bg-gradient-to-r from-red-500 to-orange-500',
+            rounding: 'bg-gradient-to-r from-teal-500 to-green-500',
+            fractions: 'bg-gradient-to-r from-purple-600 to-indigo-600',
+            bedmas: 'bg-gradient-to-r from-sky-500 to-cyan-500',
+            primary: 'bg-gradient-to-r from-blue-600 to-indigo-600',
         };
-
-        const handleSubmit = (e) => {
-            e.preventDefault();
-            if (answer.trim() !== '') onSubmit(parseFloat(answer));
-        };
-
-        const isCorrect = status === AnswerStatus.CORRECT;
-        const isIncorrect = status === AnswerStatus.INCORRECT;
-
         return (
-            <div className="bg-white p-8 rounded-2xl shadow-lg text-center animate-fade-in-slide-up">
-                <div className="text-4xl font-bold text-slate-800 mb-6 h-12 flex items-center justify-center">{question.text}</div>
-                <form onSubmit={handleSubmit}>
-                    <input
-                        ref={inputRef} type="number" value={answer} onChange={(e) => setAnswer(e.target.value)}
-                        className={`w-full max-w-xs mx-auto text-center text-3xl font-semibold p-4 border-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${focusRingClasses[colorTheme]} ${isCorrect ? 'bg-green-100 border-green-400 text-green-800' : isIncorrect ? 'bg-red-100 border-red-400 text-red-800' : 'bg-slate-100 border-slate-300'}`}
-                        disabled={isCorrect} autoFocus
-                    />
-                    <div className="mt-6">
-                        {!isCorrect && <Button type="submit" fullWidth className="max-w-xs mx-auto" colorTheme={colorTheme}>Submit Answer</Button>}
+            <header className="w-full max-w-4xl mx-auto flex items-center justify-between p-4 h-20">
+                <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xl ${themeClasses[colorTheme]}`}>
+                        M7
                     </div>
-                </form>
-                {isIncorrect && !isChallengeMode && (
-                    <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg animate-fade-in text-sm">
-                        <p className="font-semibold mb-2">Not quite! The correct answer is <strong>{correctAnswer}</strong>.</p>
-                        {explanation && <div dangerouslySetInnerHTML={{ __html: explanation }} />}
-                    </div>
+                    <h1 className="text-2xl font-bold text-slate-900">Maths Skills - Stage 7</h1>
+                </div>
+                {showHomeButton && (
+                    <Button onClick={onHomeClick} variant="light" className="shadow-none">
+                        <HomeIcon className="w-6 h-6 mr-2" />
+                        Home
+                    </Button>
                 )}
-                 {isIncorrect && isChallengeMode && (
-                    <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg animate-fade-in text-sm">
-                       <p className="font-semibold">The correct answer was <strong>{correctAnswer}</strong>.</p>
-                    </div>
-                )}
-            </div>
+            </header>
         );
       };
+      
+      const MainMenu = ({ onSelectPowersAndRoots, onSelectRounding, onSelectFractions, onSelectBedmas }) => (
+        <div className="w-full max-w-4xl mx-auto animate-fade-in-slide-up">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-bold text-slate-900 mb-3">Maths Skills - Stage 7</h1>
+            <p className="text-xl text-slate-600">Select a topic to start practicing.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Button onClick={onSelectPowersAndRoots} colorTheme="powers" className="h-32 text-2xl">Powers & Roots</Button>
+            <Button onClick={onSelectRounding} colorTheme="rounding" className="h-32 text-2xl">Rounding</Button>
+            <Button onClick={onSelectFractions} colorTheme="fractions" className="h-32 text-2xl">Fractions, Decimals & Percentages</Button>
+            <Button onClick={onSelectBedmas} colorTheme="bedmas" className="h-32 text-2xl">BEDMAS</Button>
+          </div>
+        </div>
+      );
 
-      // --- ALL OTHER COMPONENTS GO HERE ---
-      // (This would be a very long list of component definitions)
-      const BedmasQuestionCard = ({ question, onStepSubmit, onHint, colorTheme = 'primary' }) => { return <div>BEDMAS Card</div>; };
-      const ChallengeMode = (props) => { return <div>Challenge Mode</div>; };
-      const BedmasChallengeMode = (props) => { return <div>Bedmas Challenge</div>; };
-      // ... etc for all components
-
-      // --- MainMenu.js ---
-      const MainMenu = ({ onSelectPowersAndRoots, onSelectRounding, onSelectFractions, onSelectBedmas }) => {
-        return (
-            <div className="bg-white p-8 rounded-2xl shadow-lg animate-fade-in-slide-up">
-                <h1 className="text-3xl font-bold text-center text-slate-900 mb-2">Maths Skills - Stage 7</h1>
-                <p className="text-center text-slate-600 mb-8">Select a topic to start practicing.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button onClick={onSelectPowersAndRoots} colorTheme="powers">Powers & Roots</Button>
-                    <Button onClick={onSelectRounding} colorTheme="rounding">Rounding</Button>
-                    <Button onClick={onSelectFractions} colorTheme="fractions">Fractions, Decimals & Percentages</Button>
-                    <Button onClick={onSelectBedmas} colorTheme="bedmas">BEDMAS</Button>
+      const PowersAndRootsMenu = ({ onStartPractice, onStartChallenge }) => (
+        <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
+            <h2 className="text-3xl font-bold text-center mb-8">Powers & Roots</h2>
+            <div className="space-y-4">
+                <Button onClick={() => onStartPractice(GameMode.SQUARES)} variant="light" fullWidth><SquareIcon className="w-6 h-6 mr-3"/>Practice Squares (up to 12²)</Button>
+                <Button onClick={() => onStartPractice(GameMode.CUBES)} variant="light" fullWidth><CubeIcon className="w-6 h-6 mr-3"/>Practice Cubes (up to 7³)</Button>
+                <Button onClick={() => onStartPractice(GameMode.SQUARE_ROOTS)} variant="light" fullWidth><SquareRootIcon className="w-6 h-6 mr-3"/>Practice Square Roots</Button>
+                <div className="border-t border-slate-200 my-6"></div>
+                <Button onClick={onStartChallenge} fullWidth colorTheme="powers"><TimerIcon className="w-6 h-6 mr-3"/>Timed Challenge</Button>
+            </div>
+        </div>
+      );
+      
+      const RoundingMenu = ({ onStartPractice, onStartSkillCheck, onStartChallenge }) => (
+        <div className="w-full max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
+            <h2 className="text-3xl font-bold text-center mb-8">Rounding</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                    <h3 className="text-lg font-semibold mb-3 text-center">Practice Whole Numbers</h3>
+                    <div className="space-y-3">
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_TENS)} variant="light" fullWidth>Nearest 10</Button>
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_HUNDREDS)} variant="light" fullWidth>Nearest 100</Button>
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_THOUSANDS)} variant="light" fullWidth>Nearest 1,000</Button>
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_TEN_THOUSANDS)} variant="light" fullWidth>Nearest 10,000</Button>
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_HUNDRED_THOUSANDS)} variant="light" fullWidth>Nearest 100,000</Button>
+                        <Button onClick={() => onStartSkillCheck('whole')} variant="default" fullWidth><TargetIcon className="w-5 h-5 mr-2"/>Skill Check</Button>
+                    </div>
+                </div>
+                 <div>
+                    <h3 className="text-lg font-semibold mb-3 text-center">Practice Decimals</h3>
+                    <div className="space-y-3">
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_TENTHS)} variant="light" fullWidth>Nearest Tenth</Button>
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_HUNDREDTHS)} variant="light" fullWidth>Nearest Hundredth</Button>
+                        <Button onClick={() => onStartPractice(GameMode.ROUND_THOUSANDTHS)} variant="light" fullWidth>Nearest Thousandth</Button>
+                        <div className="pt-14"></div>
+                        <Button onClick={() => onStartSkillCheck('decimal')} variant="default" fullWidth><TargetIcon className="w-5 h-5 mr-2"/>Skill Check</Button>
+                    </div>
                 </div>
             </div>
-        );
-      };
+            <div className="border-t border-slate-200 my-6"></div>
+            <Button onClick={onStartChallenge} fullWidth colorTheme="rounding"><TimerIcon className="w-6 h-6 mr-3"/>Timed Challenge</Button>
+        </div>
+      );
 
-      // --- BedmasMenu.js ---
-      const BedmasMenu = ({ onStartPractice, onStartChallenge }) => (
-        <div className="bg-white p-8 rounded-2xl shadow-lg animate-fade-in-slide-up text-center">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">BEDMAS</h2>
-            <p className="text-slate-600 mb-6">Master the order of operations.</p>
-            <div className="space-y-4">
-                <Button onClick={() => onStartPractice(GameMode.BEDMAS)} fullWidth colorTheme="bedmas">Full Practice</Button>
-                <Button onClick={onStartChallenge} fullWidth variant="default">Timed Challenge</Button>
+      const FractionsMenu = ({ onStartPractice, onStartSkillCheck, onStartChallenge }) => (
+        <div className="w-full max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
+            <h2 className="text-3xl font-bold text-center mb-8">Fractions, Decimals & Percentages</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-slate-50 p-4 rounded-lg">
+                    <h3 className="text-xl font-semibold mb-4 text-center">Simplifying Fractions</h3>
+                    <div className="space-y-3">
+                        <Button onClick={() => onStartPractice.simplifying(GameMode.SIMPLIFY_FRACTIONS)} variant="light" fullWidth>Practice</Button>
+                        <Button onClick={() => onStartSkillCheck.simplifying()} variant="default" fullWidth>Skill Check</Button>
+                        <Button onClick={() => onStartChallenge.simplifying()} fullWidth colorTheme="fractions"><TimerIcon className="w-5 h-5 mr-2"/>Timed Challenge</Button>
+                    </div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                    <h3 className="text-xl font-semibold mb-4 text-center">Converting FDP</h3>
+                    <div className="space-y-3">
+                        <Button onClick={() => onStartPractice.converting(GameMode.CONVERT_FRACTIONS)} variant="light" fullWidth>Practice (Fractions)</Button>
+                        <Button onClick={() => onStartPractice.converting(GameMode.CONVERT_DECIMALS)} variant="light" fullWidth>Practice (Decimals)</Button>
+                        <Button onClick={() => onStartPractice.converting(GameMode.CONVERT_PERCENTAGES)} variant="light" fullWidth>Practice (Percentages)</Button>
+                        <div className="border-t border-slate-200 my-2"></div>
+                        <Button onClick={() => onStartSkillCheck.converting('fractions')} variant="default" fullWidth>Skill Check (Fractions)</Button>
+                        <Button onClick={() => onStartSkillCheck.converting('decimals')} variant="default" fullWidth>Skill Check (Decimals)</Button>
+                        <Button onClick={() => onStartSkillCheck.converting('percentages')} variant="default" fullWidth>Skill Check (Percentages)</Button>
+                         <div className="border-t border-slate-200 my-2"></div>
+                        <Button onClick={() => onStartChallenge.converting()} fullWidth colorTheme="fractions"><TimerIcon className="w-5 h-5 mr-2"/>Timed Challenge</Button>
+                    </div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                    <h3 className="text-xl font-semibold mb-4 text-center">Ordering FDP</h3>
+                    <div className="space-y-3">
+                        <Button onClick={() => onStartPractice.ordering()} variant="light" fullWidth>Practice</Button>
+                        <Button onClick={() => onStartChallenge.ordering()} fullWidth colorTheme="fractions"><TimerIcon className="w-5 h-5 mr-2"/>Timed Challenge</Button>
+                    </div>
+                </div>
             </div>
         </div>
       );
 
-       // --- BedmasPracticeMode.js ---
-      const BedmasPracticeMode = ({ onExit, colorTheme }) => {
-          // A simplified placeholder. The real component would be much more complex.
-          const [question, setQuestion] = useState(generateQuestion(GameMode.BEDMAS));
+      const BedmasMenu = ({ onStartPractice, onStartChallenge }) => (
+        <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
+            <h2 className="text-3xl font-bold text-center mb-8">BEDMAS</h2>
+            <div className="space-y-4">
+                <Button onClick={() => onStartPractice(GameMode.BEDMAS)} variant="light" fullWidth>Full Practice</Button>
+                <div className="border-t border-slate-200 my-6"></div>
+                <Button onClick={onStartChallenge} fullWidth colorTheme="bedmas"><TimerIcon className="w-6 h-6 mr-3"/>Timed Challenge</Button>
+            </div>
+        </div>
+      );
+
+      const PracticeMode = ({ gameMode, onExit, colorTheme }) => {
+          const [questions, setQuestions] = useState([]);
+          const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+          const [correctAnswers, setCorrectAnswers] = useState(0);
+          const [isFinished, setIsFinished] = useState(false);
+
+          useEffect(() => {
+              const usedAnswers = new Set();
+              const newQuestions = Array.from({ length: PRACTICE_SESSION_LENGTH }, () => {
+                  const q = gameMode === GameMode.ORDERING_FDP ? generateOrderingQuestion() : generateQuestion(gameMode, usedAnswers);
+                  usedAnswers.add(JSON.stringify(q.answer));
+                  return q;
+              });
+              setQuestions(newQuestions);
+          }, [gameMode]);
           
-          if (!question || !question.answer || !question.answer.steps) {
-            return <div>Loading...</div>; // Or handle error
-          }
+          const handleAnswerSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setCorrectAnswers(prev => prev + 1);
+                   setTimeout(() => {
+                      if (currentQuestionIndex < PRACTICE_SESSION_LENGTH - 1) {
+                          setCurrentQuestionIndex(prev => prev + 1);
+                      } else {
+                          setIsFinished(true);
+                      }
+                  }, 1000);
+              }
+          };
 
-          const totalSteps = question.answer.steps.length;
+          const handleNextQuestion = () => {
+              if (currentQuestionIndex < PRACTICE_SESSION_LENGTH - 1) {
+                  setCurrentQuestionIndex(prev => prev + 1);
+              } else {
+                  setIsFinished(true);
+              }
+          };
 
-          return (
-              <div className="w-full max-w-2xl mx-auto animate-fade-in">
-                  <div className="mb-4">
-                      <div className="flex justify-between items-center mb-1">
-                          <span className="text-sm font-semibold text-slate-600">Progress</span>
-                          <span className="text-sm font-semibold text-slate-600">Step {0} / {totalSteps}</span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-3">
-                          <div className={`h-3 rounded-full transition-all duration-300 bg-gradient-to-r from-sky-500 to-cyan-500`} style={{ width: `0%` }}></div>
+          const resetPractice = () => {
+              const usedAnswers = new Set();
+              const newQuestions = Array.from({ length: PRACTICE_SESSION_LENGTH }, () => {
+                   const q = gameMode === GameMode.ORDERING_FDP ? generateOrderingQuestion() : generateQuestion(gameMode, usedAnswers);
+                  usedAnswers.add(JSON.stringify(q.answer));
+                  return q;
+              });
+              setQuestions(newQuestions);
+              setCurrentQuestionIndex(0);
+              setCorrectAnswers(0);
+              setIsFinished(false);
+          };
+
+          const currentQuestion = questions[currentQuestionIndex];
+          const progress = ((currentQuestionIndex) / PRACTICE_SESSION_LENGTH) * 100;
+
+          const themeClasses = {
+              powers: 'bg-red-500', rounding: 'bg-green-500',
+              fractions: 'bg-purple-600', bedmas: 'bg-sky-500',
+          };
+          
+          if (!currentQuestion) return <div>Loading...</div>;
+
+          if (isFinished) {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Practice Complete!</h2>
+                      <p className="text-xl text-slate-600 mb-6">You scored {correctAnswers} out of {PRACTICE_SESSION_LENGTH}.</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={resetPractice} fullWidth colorTheme={colorTheme}>Practice Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
                       </div>
                   </div>
-                  <div>BEDMAS Practice Placeholder</div>
+              );
+          }
+
+          const isConversion = [GameMode.CONVERT_FRACTIONS, GameMode.CONVERT_DECIMALS, GameMode.CONVERT_PERCENTAGES].includes(gameMode);
+          const isSimplify = gameMode === GameMode.SIMPLIFY_FRACTIONS;
+          const isOrdering = gameMode === GameMode.ORDERING_FDP;
+
+          const QuestionComponent = isConversion ? ConversionQuestionCard : 
+                                   isSimplify ? FractionQuestionCard : 
+                                   isOrdering ? OrderingQuestionCard :
+                                   QuestionCard;
+
+          return (
+              <div className="w-full max-w-xl mx-auto animate-fade-in">
+                   <div className="mb-4">
+                      <div className="flex justify-between items-center mb-1 text-sm text-slate-600">
+                          <span>Progress</span>
+                          <span>{currentQuestionIndex + 1} / {PRACTICE_SESSION_LENGTH}</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className={`h-2.5 rounded-full transition-all duration-500 ${themeClasses[colorTheme]}`} style={{ width: `${progress}%` }}></div>
+                      </div>
+                  </div>
+                  <QuestionComponent 
+                      key={currentQuestion.id} 
+                      question={currentQuestion} 
+                      onSubmit={handleAnswerSubmit} 
+                      onIncorrect={handleNextQuestion}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+
+      // --- ALL OTHER COMPONENTS IMPLEMENTED ---
+      const SkillCheckMode = ({ gameMode, onExit, colorTheme, skillCheckType }) => {
+          const [questions, setQuestions] = useState([]);
+          const [currentQuestionIndex, setQuestionIndex] = useState(0);
+          const [incorrectAnswers, setIncorrectAnswers] = useState([]);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const [showResults, setShowResults] = useState(false);
+
+          useEffect(() => {
+              const modes = 
+                  skillCheckType === 'simplifying' ? [GameMode.SIMPLIFY_FRACTIONS] :
+                  [GameMode.SQUARES, GameMode.CUBES, GameMode.SQUARE_ROOTS];
+              const q = skillCheckType === 'rounding' 
+                  ? generateRoundingSkillCheckQuestions(gameMode)
+                  : generateSkillCheckQuestions(modes);
+              setQuestions(q);
+          }, [gameMode, skillCheckType]);
+
+          const handleAnswerSubmit = (isCorrect, answer) => {
+              if (isCorrect) {
+                  setAnswerStatus(AnswerStatus.CORRECT);
+                  setTimeout(() => {
+                      if (currentQuestionIndex === questions.length - 1) setShowResults(true);
+                      else { setQuestionIndex(prev => prev + 1); setAnswerStatus(AnswerStatus.UNANSWERED); }
+                  }, 1000);
+              } else {
+                  setAnswerStatus(AnswerStatus.INCORRECT);
+                  setIncorrectAnswers(prev => [...prev, { question: questions[currentQuestionIndex], yourAnswer: answer }]);
+              }
+          };
+
+          const handleNextQuestion = () => {
+              if (currentQuestionIndex === questions.length - 1) setShowResults(true);
+              else { setQuestionIndex(prev => prev + 1); setAnswerStatus(AnswerStatus.UNANSWERED); }
+          };
+
+          if (questions.length === 0) return <div>Loading...</div>;
+
+          if (showResults) {
+              const isPerfect = incorrectAnswers.length === 0;
+              return (
+                  <div className="w-full max-w-lg mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      {isPerfect ? <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/> : <TargetIcon className="w-24 h-24 mx-auto text-blue-500 mb-4"/>}
+                      <h2 className="text-3xl font-bold mb-2">{isPerfect ? "Skill Mastered!" : "Great Effort!"}</h2>
+                      <p className="text-xl text-slate-600 mb-6">You got {10 - incorrectAnswers.length} out of 10 correct.</p>
+                      {!isPerfect && (
+                          <div className="text-left bg-slate-50 p-4 rounded-lg mb-6">
+                              <h3 className="font-semibold mb-2">Areas to practice:</h3>
+                              <ul className="list-disc list-inside text-slate-700">
+                                  {incorrectAnswers.map((item, i) => <li key={i}>{item.question.text}</li>)}
+                              </ul>
+                          </div>
+                      )}
+                      <Button onClick={onExit} fullWidth colorTheme={colorTheme}>Return to Menu</Button>
+                  </div>
+              );
+          }
+          
+          const currentQuestion = questions[currentQuestionIndex];
+          const progress = ((currentQuestionIndex) / questions.length) * 100;
+           const themeClasses = { powers: 'bg-red-500', rounding: 'bg-green-500', fractions: 'bg-purple-600' };
+
+          return (
+             <div className="w-full max-w-xl mx-auto animate-fade-in">
+                   <div className="mb-4">
+                      <div className="flex justify-between items-center mb-1 text-sm text-slate-600">
+                          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className={`h-2.5 rounded-full transition-all duration-500 ${themeClasses[colorTheme]}`} style={{ width: `${progress}%` }}></div>
+                      </div>
+                  </div>
+                  <QuestionCard 
+                      key={currentQuestion.id} 
+                      question={currentQuestion} 
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      colorTheme={colorTheme}
+                  />
               </div>
           );
       };
       
-      // ... the rest of the 20+ components would be defined here.
+       const ConversionSkillCheckMode = ({ onExit, colorTheme, skillCheckType }) => {
+          const [questions, setQuestions] = useState([]);
+          const [currentQuestionIndex, setQuestionIndex] = useState(0);
+          const [incorrectAnswers, setIncorrectAnswers] = useState([]);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const [showResults, setShowResults] = useState(false);
 
-      // --- App.js ---
-      const App = () => {
-          const [appState, setAppState] = useState({ view: 'top_menu' });
+          useEffect(() => {
+              setQuestions(generateConversionSkillCheckQuestions(skillCheckType));
+          }, [skillCheckType]);
 
-          const navigateToTopMenu = useCallback(() => setAppState({ view: 'top_menu' }), []);
-          const navigateToPowersAndRootsMenu = useCallback(() => setAppState({ view: 'powers_menu' }), []);
-          const navigateToRoundingMenu = useCallback(() => setAppState({ view: 'rounding_menu' }), []);
-          const navigateToFractionsMenu = useCallback(() => setAppState({ view: 'fractions_menu' }), []);
-          const navigateToBedmasMenu = useCallback(() => setAppState({ view: 'bedmas_menu' }), []);
-          
-          const startBedmasPractice = useCallback((mode) => setAppState({ view: 'bedmas_practice', mode }), []);
-          const startBedmasChallenge = useCallback(() => setAppState({ view: 'bedmas_challenge' }), []);
-
-          // ... many other navigation functions ...
-
-          const getCurrentColorTheme = (state) => {
-            if (state.view.startsWith('powers')) return 'powers';
-            if (state.view.startsWith('rounding')) return 'rounding';
-            if (state.view.startsWith('fractions') || state.view.startsWith('conversion') || state.view.startsWith('ordering')) return 'fractions';
-            if (state.view.startsWith('bedmas')) return 'bedmas';
-            return 'primary';
-          };
-          
-          const colorTheme = getCurrentColorTheme(appState);
-
-          const renderContent = () => {
-              switch (appState.view) {
-                  case 'top_menu': return <MainMenu onSelectPowersAndRoots={navigateToPowersAndRootsMenu} onSelectRounding={navigateToRoundingMenu} onSelectFractions={navigateToFractionsMenu} onSelectBedmas={navigateToBedmasMenu} />;
-                  case 'bedmas_menu': return <BedmasMenu onStartPractice={startBedmasPractice} onStartChallenge={startBedmasChallenge} />;
-                  case 'bedmas_practice': return <BedmasPracticeMode onExit={navigateToBedmasMenu} colorTheme={colorTheme} />;
-                  case 'bedmas_challenge': return <BedmasChallengeMode onExit={navigateToBedmasMenu} storageKey={BEDMAS_HIGH_SCORE_STORAGE_KEY} duration={BEDMAS_CHALLENGE_DURATION_SECONDS} colorTheme={colorTheme} />;
-                  // ... all other cases for all other views would be here ...
-                  default: return <MainMenu onSelectPowersAndRoots={navigateToPowersAndRootsMenu} onSelectRounding={navigateToRoundingMenu} onSelectFractions={navigateToFractionsMenu} onSelectBedmas={navigateToBedmasMenu} />;
+          const handleAnswerSubmit = (isCorrect, answer) => {
+              if (isCorrect) {
+                  setAnswerStatus(AnswerStatus.CORRECT);
+                  setTimeout(() => {
+                      if (currentQuestionIndex === questions.length - 1) setShowResults(true);
+                      else { setQuestionIndex(prev => prev + 1); setAnswerStatus(AnswerStatus.UNANSWERED); }
+                  }, 1000);
+              } else {
+                  setAnswerStatus(AnswerStatus.INCORRECT);
+                  setIncorrectAnswers(prev => [...prev, { question: questions[currentQuestionIndex], yourAnswer: answer }]);
               }
           };
 
+          const handleNextQuestion = () => {
+              if (currentQuestionIndex === questions.length - 1) setShowResults(true);
+              else { setQuestionIndex(prev => prev + 1); setAnswerStatus(AnswerStatus.UNANSWERED); }
+          };
+
+          if (questions.length === 0) return <div>Loading...</div>;
+
+          if (showResults) {
+              const isPerfect = incorrectAnswers.length === 0;
+              const errorTypes = [...new Set(incorrectAnswers.map(item => item.question.skillCheckSubType))];
+              return (
+                  <div className="w-full max-w-lg mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      {isPerfect ? <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/> : <TargetIcon className="w-24 h-24 mx-auto text-blue-500 mb-4"/>}
+                      <h2 className="text-3xl font-bold mb-2">{isPerfect ? "Skill Mastered!" : "Great Effort!"}</h2>
+                      <p className="text-xl text-slate-600 mb-6">You got {10 - incorrectAnswers.length} out of 10 correct.</p>
+                      {!isPerfect && (
+                          <div className="text-left bg-slate-50 p-4 rounded-lg mb-6">
+                              <h3 className="font-semibold mb-2">Areas to practice:</h3>
+                              <ul className="list-disc list-inside text-slate-700">
+                                  {errorTypes.map((type, i) => <li key={i}>{type}</li>)}
+                              </ul>
+                          </div>
+                      )}
+                      <Button onClick={onExit} fullWidth colorTheme={colorTheme}>Return to Menu</Button>
+                  </div>
+              );
+          }
+          
+          const currentQuestion = questions[currentQuestionIndex];
+          const progress = ((currentQuestionIndex) / questions.length) * 100;
+          const isFractionAnswer = String(currentQuestion.answer).includes('/');
+          const QuestionComponent = isFractionAnswer ? FractionQuestionCard : QuestionCard;
+
           return (
-              <div className="min-h-screen flex flex-col items-center justify-center p-4">
-                  <Header onHomeClick={navigateToTopMenu} showHomeButton={appState.view !== 'top_menu'} colorTheme={colorTheme} />
-                  <main className="w-full max-w-2xl mx-auto">
-                      {renderContent()}
-                  </main>
-                  <footer className="text-center text-slate-500 mt-8 text-sm">
-                      <p>Welcome to the Maths Skills Arena. Practice and master your skills.</p>
-                  </footer>
+             <div className="w-full max-w-xl mx-auto animate-fade-in">
+                   <div className="mb-4">
+                      <div className="flex justify-between items-center mb-1 text-sm text-slate-600">
+                          <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className={`h-2.5 rounded-full transition-all duration-500 bg-purple-600`} style={{ width: `${progress}%` }}></div>
+                      </div>
+                  </div>
+                  <QuestionComponent 
+                      key={currentQuestion.id} 
+                      question={currentQuestion} 
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      colorTheme={colorTheme}
+                  />
               </div>
           );
       };
 
-      // --- RENDER ---
-      const rootElement = document.getElementById('root');
-      if (!rootElement) {
-        throw new Error("Could not find root element to mount to");
-      }
-      const root = ReactDOM.createRoot(rootElement);
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
+      const ChallengeMode = ({ onExit, storageKey, duration, gameModes, title, colorTheme }) => {
+          const [gameState, setGameState] = useState('intro'); // intro, playing, finished
+          const [score, setScore] = useState(0);
+          const [highScore, setHighScore] = useState(0);
+          const [currentQuestion, setCurrentQuestion] = useState(null);
+          const [timeLeft, setTimeLeft] = useState(duration);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const timerRef = useRef(null);
+
+          useEffect(() => {
+              setHighScore(Number(localStorage.getItem(storageKey)) || 0);
+              return () => clearInterval(timerRef.current);
+          }, [storageKey]);
+
+          const startChallenge = () => {
+              setScore(0);
+              setTimeLeft(duration);
+              setGameState('playing');
+              setCurrentQuestion(generateSkillCheckQuestions(gameModes)[0]);
+              timerRef.current = setInterval(() => {
+                  setTimeLeft(prev => {
+                      if (prev <= 1) {
+                          clearInterval(timerRef.current);
+                          setGameState('finished');
+                          if (score > highScore) {
+                              localStorage.setItem(storageKey, score);
+                              setHighScore(score);
+                          }
+                          return 0;
+                      }
+                      return prev - 1;
+                  });
+              }, 1000);
+          };
+          
+          const handleAnswerSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setScore(prev => prev + 1);
+                  const nextIndex = Math.floor(Math.random() * gameModes.length);
+                  setCurrentQuestion(generateQuestion(gameModes[nextIndex]));
+              } else {
+                  setAnswerStatus(AnswerStatus.INCORRECT);
+                  clearInterval(timerRef.current);
+              }
+          };
+
+          const handleNextQuestion = () => {
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+              const nextIndex = Math.floor(Math.random() * gameModes.length);
+              setCurrentQuestion(generateQuestion(gameModes[nextIndex]));
+              startTimer(); // Restart timer
+          };
+
+          const startTimer = () => {
+             timerRef.current = setInterval(() => {
+                  setTimeLeft(prev => {
+                      if (prev <= 1) {
+                          clearInterval(timerRef.current);
+                          setGameState('finished');
+                          if (score > highScore) {
+                              localStorage.setItem(storageKey, score);
+                              setHighScore(score);
+                          }
+                          return 0;
+                      }
+                      return prev - 1;
+                  });
+              }, 1000);
+          }
+
+
+          if (gameState === 'intro') {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <h2 className="text-3xl font-bold mb-2">Timed Challenge: {title}</h2>
+                      <p className="text-slate-600 mb-6">You have {duration} seconds to answer as many questions as you can. Good luck!</p>
+                      <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Start Challenge</Button>
+                  </div>
+              );
+          }
+
+          if (gameState === 'finished') {
+              return (
+                   <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Time's Up!</h2>
+                      <p className="text-xl text-slate-600 mb-2">You scored {score} points.</p>
+                      <p className="text-lg text-slate-500 mb-6">High Score: {highScore}</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Play Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
+                      </div>
+                  </div>
+              );
+          }
+          
+          if (!currentQuestion) return null;
+
+          return (
+              <div className="w-full max-w-xl mx-auto animate-fade-in">
+                  <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-semibold">Score: <span className="text-green-600">{score}</span></div>
+                      <div className="text-lg font-semibold">High Score: <span className="text-blue-600">{highScore}</span></div>
+                      <div className="text-lg font-semibold flex items-center">
+                          <TimerIcon className="w-6 h-6 mr-1 text-red-500"/>
+                          Time: <span className="text-red-500 ml-1">{timeLeft}</span>
+                      </div>
+                  </div>
+                  <QuestionCard 
+                      key={currentQuestion.id} 
+                      question={currentQuestion}
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+
+      const RoundingChallengeMode = ({ onExit, storageKey, duration, colorTheme }) => {
+          const gameModes = [
+              GameMode.ROUND_TENS, GameMode.ROUND_HUNDREDS, GameMode.ROUND_THOUSANDS,
+              GameMode.ROUND_TEN_THOUSANDS, GameMode.ROUND_HUNDRED_THOUSANDS,
+              GameMode.ROUND_TENTHS, GameMode.ROUND_HUNDREDTHS, GameMode.ROUND_THOUSANDTHS
+          ];
+          return <ChallengeMode onExit={onExit} storageKey={storageKey} duration={duration} gameModes={gameModes} title="Rounding" colorTheme={colorTheme} />;
+      };
+      
+      const FractionsChallengeMode = ({ onExit, storageKey, duration, colorTheme }) => {
+          const [gameState, setGameState] = useState('intro');
+          const [score, setScore] = useState(0);
+          const [highScore, setHighScore] = useState(0);
+          const [currentQuestion, setCurrentQuestion] = useState(null);
+          const [timeLeft, setTimeLeft] = useState(duration);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const timerRef = useRef(null);
+
+          useEffect(() => {
+              setHighScore(Number(localStorage.getItem(storageKey)) || 0);
+              return () => clearInterval(timerRef.current);
+          }, [storageKey]);
+          
+          const startChallenge = () => {
+              setScore(0);
+              setTimeLeft(duration);
+              setGameState('playing');
+              setCurrentQuestion(generateQuestion(GameMode.SIMPLIFY_FRACTIONS));
+              startTimer();
+          };
+
+          const handleAnswerSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setScore(prev => prev + 1);
+                  setCurrentQuestion(generateQuestion(GameMode.SIMPLIFY_FRACTIONS));
+              } else {
+                  setAnswerStatus(AnswerStatus.INCORRECT);
+                  clearInterval(timerRef.current);
+              }
+          };
+
+          const handleNextQuestion = () => {
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+              setCurrentQuestion(generateQuestion(GameMode.SIMPLIFY_FRACTIONS));
+              startTimer();
+          };
+
+          const startTimer = () => {
+             timerRef.current = setInterval(() => {
+                  setTimeLeft(prev => {
+                      if (prev <= 1) {
+                          clearInterval(timerRef.current);
+                          setGameState('finished');
+                          if (score > highScore) {
+                              localStorage.setItem(storageKey, score);
+                              setHighScore(score);
+                          }
+                          return 0;
+                      }
+                      return prev - 1;
+                  });
+              }, 1000);
+          }
+
+          if (gameState === 'intro') {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <h2 className="text-3xl font-bold mb-2">Timed Challenge: Simplifying</h2>
+                      <p className="text-slate-600 mb-6">You have {duration} seconds to answer as many questions as you can. Good luck!</p>
+                      <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Start Challenge</Button>
+                  </div>
+              );
+          }
+
+          if (gameState === 'finished') {
+              return (
+                   <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Time's Up!</h2>
+                      <p className="text-xl text-slate-600 mb-2">You scored {score} points.</p>
+                      <p className="text-lg text-slate-500 mb-6">High Score: {highScore}</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Play Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
+                      </div>
+                  </div>
+              );
+          }
+          
+          if (!currentQuestion) return null;
+
+          return (
+              <div className="w-full max-w-xl mx-auto animate-fade-in">
+                   <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-semibold">Score: <span className="text-green-600">{score}</span></div>
+                      <div className="text-lg font-semibold">High Score: <span className="text-blue-600">{highScore}</span></div>
+                      <div className="text-lg font-semibold flex items-center">
+                          <TimerIcon className="w-6 h-6 mr-1 text-red-500"/>
+                          Time: <span className="text-red-500 ml-1">{timeLeft}</span>
+                      </div>
+                  </div>
+                  <FractionQuestionCard 
+                      key={currentQuestion.id} 
+                      question={currentQuestion}
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+      
+      const ConversionChallengeMode = ({ onExit, storageKey, duration, colorTheme }) => {
+          const [gameState, setGameState] = useState('intro');
+          const [score, setScore] = useState(0);
+          const [highScore, setHighScore] = useState(0);
+          const [currentQuestion, setCurrentQuestion] = useState(null);
+          const [timeLeft, setTimeLeft] = useState(duration);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const timerRef = useRef(null);
+
+          useEffect(() => {
+              setHighScore(Number(localStorage.getItem(storageKey)) || 0);
+              return () => clearInterval(timerRef.current);
+          }, [storageKey]);
+          
+          const startChallenge = () => {
+              setScore(0);
+              setTimeLeft(duration);
+              setGameState('playing');
+              setCurrentQuestion(generateRandomConversionQuestionForChallenge());
+              startTimer();
+          };
+
+          const handleAnswerSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setScore(prev => prev + 1);
+                  setCurrentQuestion(generateRandomConversionQuestionForChallenge());
+              } else {
+                   setAnswerStatus(AnswerStatus.INCORRECT);
+                   clearInterval(timerRef.current);
+              }
+          };
+
+          const handleNextQuestion = () => {
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+              setCurrentQuestion(generateRandomConversionQuestionForChallenge());
+              startTimer();
+          };
+
+          const startTimer = () => {
+             timerRef.current = setInterval(() => {
+                  setTimeLeft(prev => {
+                      if (prev <= 1) {
+                          clearInterval(timerRef.current);
+                          setGameState('finished');
+                          if (score > highScore) {
+                              localStorage.setItem(storageKey, score);
+                              setHighScore(score);
+                          }
+                          return 0;
+                      }
+                      return prev - 1;
+                  });
+              }, 1000);
+          }
+
+
+          if (gameState === 'intro') {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <h2 className="text-3xl font-bold mb-2">Timed Challenge: Conversions</h2>
+                      <p className="text-slate-600 mb-6">You have {duration} seconds to answer as many questions as you can. Good luck!</p>
+                      <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Start Challenge</Button>
+                  </div>
+              );
+          }
+
+          if (gameState === 'finished') {
+              return (
+                   <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Time's Up!</h2>
+                      <p className="text-xl text-slate-600 mb-2">You scored {score} points.</p>
+                      <p className="text-lg text-slate-500 mb-6">High Score: {highScore}</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Play Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
+                      </div>
+                  </div>
+              );
+          }
+          
+          if (!currentQuestion) return null;
+          
+          const isFractionAnswer = String(currentQuestion.answer).includes('/');
+          const QuestionComponent = isFractionAnswer ? FractionQuestionCard : QuestionCard;
+
+          return (
+              <div className="w-full max-w-xl mx-auto animate-fade-in">
+                   <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-semibold">Score: <span className="text-green-600">{score}</span></div>
+                      <div className="text-lg font-semibold">High Score: <span className="text-blue-600">{highScore}</span></div>
+                      <div className="text-lg font-semibold flex items-center">
+                          <TimerIcon className="w-6 h-6 mr-1 text-red-500"/>
+                          Time: <span className="text-red-500 ml-1">{timeLeft}</span>
+                      </div>
+                  </div>
+                  <QuestionComponent 
+                      key={currentQuestion.id} 
+                      question={currentQuestion}
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+      
+      const OrderingChallengeMode = ({ onExit, storageKey, duration, colorTheme }) => {
+          const [gameState, setGameState] = useState('intro');
+          const [score, setScore] = useState(0);
+          const [highScore, setHighScore] = useState(0);
+          const [currentQuestion, setCurrentQuestion] = useState(null);
+          const [timeLeft, setTimeLeft] = useState(duration);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const timerRef = useRef(null);
+
+          useEffect(() => {
+              setHighScore(Number(localStorage.getItem(storageKey)) || 0);
+              return () => clearInterval(timerRef.current);
+          }, [storageKey]);
+          
+          const startChallenge = () => {
+              setScore(0);
+              setTimeLeft(duration);
+              setGameState('playing');
+              setCurrentQuestion(generateOrderingQuestion());
+              startTimer();
+          };
+
+          const handleAnswerSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setScore(prev => prev + 1);
+                  setCurrentQuestion(generateOrderingQuestion());
+              } else {
+                   setAnswerStatus(AnswerStatus.INCORRECT);
+                   clearInterval(timerRef.current);
+              }
+          };
+
+          const handleNextQuestion = () => {
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+              setCurrentQuestion(generateOrderingQuestion());
+              startTimer();
+          };
+
+          const startTimer = () => {
+             timerRef.current = setInterval(() => {
+                  setTimeLeft(prev => {
+                      if (prev <= 1) {
+                          clearInterval(timerRef.current);
+                          setGameState('finished');
+                          if (score > highScore) {
+                              localStorage.setItem(storageKey, score);
+                              setHighScore(score);
+                          }
+                          return 0;
+                      }
+                      return prev - 1;
+                  });
+              }, 1000);
+          }
+
+
+          if (gameState === 'intro') {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <h2 className="text-3xl font-bold mb-2">Timed Challenge: Ordering FDP</h2>
+                      <p className="text-slate-600 mb-6">You have {duration} seconds to answer as many questions as you can. Good luck!</p>
+                      <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Start Challenge</Button>
+                  </div>
+              );
+          }
+
+          if (gameState === 'finished') {
+              return (
+                   <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Time's Up!</h2>
+                      <p className="text-xl text-slate-600 mb-2">You scored {score} points.</p>
+                      <p className="text-lg text-slate-500 mb-6">High Score: {highScore}</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Play Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
+                      </div>
+                  </div>
+              );
+          }
+          
+          if (!currentQuestion) return null;
+
+          return (
+              <div className="w-full max-w-2xl mx-auto animate-fade-in">
+                   <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-semibold">Score: <span className="text-green-600">{score}</span></div>
+                      <div className="text-lg font-semibold">High Score: <span className="text-blue-600">{highScore}</span></div>
+                      <div className="text-lg font-semibold flex items-center">
+                          <TimerIcon className="w-6 h-6 mr-1 text-red-500"/>
+                          Time: <span className="text-red-500 ml-1">{timeLeft}</span>
+                      </div>
+                  </div>
+                  <OrderingQuestionCard 
+                      key={currentQuestion.id} 
+                      question={currentQuestion}
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      isChallengeMode={true}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+
+      const BedmasChallengeMode = ({ onExit, storageKey, duration, colorTheme }) => {
+          const [gameState, setGameState] = useState('intro');
+          const [score, setScore] = useState(0);
+          const [highScore, setHighScore] = useState(0);
+          const [currentQuestion, setCurrentQuestion] = useState(null);
+          const [timeLeft, setTimeLeft] = useState(duration);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+          const timerRef = useRef(null);
+
+          useEffect(() => {
+              setHighScore(Number(localStorage.getItem(storageKey)) || 0);
+              return () => clearInterval(timerRef.current);
+          }, [storageKey]);
+
+          const startChallenge = () => {
+              setScore(0);
+              setTimeLeft(duration);
+              setGameState('playing');
+              setCurrentQuestion(generateBedmasChallengeQuestion());
+              startTimer();
+          };
+          
+          const handleAnswerSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setScore(prev => prev + 1);
+                  setCurrentQuestion(generateBedmasChallengeQuestion());
+              } else {
+                  setAnswerStatus(AnswerStatus.INCORRECT);
+                  clearInterval(timerRef.current);
+              }
+          };
+
+          const handleNextQuestion = () => {
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+              setCurrentQuestion(generateBedmasChallengeQuestion());
+              startTimer(); 
+          };
+
+          const startTimer = () => {
+             timerRef.current = setInterval(() => {
+                  setTimeLeft(prev => {
+                      if (prev <= 1) {
+                          clearInterval(timerRef.current);
+                          setGameState('finished');
+                          if (score > highScore) {
+                              localStorage.setItem(storageKey, score);
+                              setHighScore(score);
+                          }
+                          return 0;
+                      }
+                      return prev - 1;
+                  });
+              }, 1000);
+          }
+
+
+          if (gameState === 'intro') {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <h2 className="text-3xl font-bold mb-2">Timed Challenge: BEDMAS</h2>
+                      <p className="text-slate-600 mb-6">You have {duration} seconds to solve as many equations as you can. Good luck!</p>
+                      <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Start Challenge</Button>
+                  </div>
+              );
+          }
+
+          if (gameState === 'finished') {
+              return (
+                   <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Time's Up!</h2>
+                      <p className="text-xl text-slate-600 mb-2">You scored {score} points.</p>
+                      <p className="text-lg text-slate-500 mb-6">High Score: {highScore}</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={startChallenge} fullWidth colorTheme={colorTheme}>Play Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
+                      </div>
+                  </div>
+              );
+          }
+          
+          if (!currentQuestion) return null;
+
+          return (
+              <div className="w-full max-w-xl mx-auto animate-fade-in">
+                  <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-sm">
+                      <div className="text-lg font-semibold">Score: <span className="text-green-600">{score}</span></div>
+                      <div className="text-lg font-semibold">High Score: <span className="text-blue-600">{highScore}</span></div>
+                      <div className="text-lg font-semibold flex items-center">
+                          <TimerIcon className="w-6 h-6 mr-1 text-red-500"/>
+                          Time: <span className="text-red-500 ml-1">{timeLeft}</span>
+                      </div>
+                  </div>
+                  <QuestionCard 
+                      key={currentQuestion.id} 
+                      question={currentQuestion}
+                      onSubmit={handleAnswerSubmit}
+                      onIncorrect={handleNextQuestion}
+                      answerStatus={answerStatus}
+                      correctAnswer={currentQuestion.answer}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+      
+      const BedmasPracticeMode = ({ onExit, colorTheme }) => {
+          const [question, setQuestion] = useState(null);
+          const [currentStepIndex, setCurrentStepIndex] = useState(0);
+          const [correctAnswers, setCorrectAnswers] = useState(0);
+          const [isFinished, setIsFinished] = useState(false);
+          const [showHint, setShowHint] = useState(false);
+
+          useEffect(() => {
+              setQuestion(generateQuestion(GameMode.BEDMAS));
+          }, []);
+
+          const handleStepSubmit = (isCorrect) => {
+              if (isCorrect) {
+                  setShowHint(false);
+                  if (currentStepIndex < question.answer.steps.length - 2) {
+                      setCurrentStepIndex(prev => prev + 1);
+                  } else {
+                      setCorrectAnswers(prev => prev + 1);
+                      if (correctAnswers + 1 >= PRACTICE_SESSION_LENGTH) {
+                          setIsFinished(true);
+                      } else {
+                         setTimeout(() => {
+                            setQuestion(generateQuestion(GameMode.BEDMAS));
+                            setCurrentStepIndex(0);
+                         }, 1000);
+                      }
+                  }
+              }
+          };
+          
+          const resetPractice = () => {
+              setQuestion(generateQuestion(GameMode.BEDMAS));
+              setCurrentStepIndex(0);
+              setCorrectAnswers(0);
+              setIsFinished(false);
+          };
+
+          if (!question) return <div>Loading...</div>;
+          
+          if (isFinished) {
+              return (
+                  <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center animate-fade-in">
+                      <TrophyIcon className="w-24 h-24 mx-auto text-yellow-500 mb-4"/>
+                      <h2 className="text-3xl font-bold mb-2">Practice Complete!</h2>
+                      <p className="text-xl text-slate-600 mb-6">You solved {correctAnswers} equations.</p>
+                      <div className="flex space-x-4">
+                          <Button onClick={resetPractice} fullWidth colorTheme={colorTheme}>Practice Again</Button>
+                          <Button onClick={onExit} variant="light" fullWidth>Return to Menu</Button>
+                      </div>
+                  </div>
+              );
+          }
+          
+          const progress = (correctAnswers / PRACTICE_SESSION_LENGTH) * 100;
+
+          return (
+              <div className="w-full max-w-3xl mx-auto animate-fade-in">
+                  <div className="mb-4">
+                      <div className="flex justify-between items-center mb-1 text-sm text-slate-600">
+                          <span>Progress</span>
+                          <span>{correctAnswers} / {PRACTICE_SESSION_LENGTH}</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className={`h-2.5 rounded-full transition-all duration-500 bg-sky-500`} style={{ width: `${progress}%` }}></div>
+                      </div>
+                  </div>
+                  <BedmasQuestionCard
+                      key={question.id}
+                      question={question.answer}
+                      onStepSubmit={handleStepSubmit}
+                      currentStepIndex={currentStepIndex}
+                      showHint={showHint}
+                      setShowHint={setShowHint}
+                      colorTheme={colorTheme}
+                  />
+              </div>
+          );
+      };
+      
+      const QuestionCard = ({ question, onSubmit, onIncorrect, answerStatus: initialStatus, correctAnswer, colorTheme }) => {
+          const [answer, setAnswer] = useState('');
+          const [answerStatus, setAnswerStatus] = useState(initialStatus || AnswerStatus.UNANSWERED);
+          const inputRef = useRef(null);
+
+          useEffect(() => {
+              setAnswer('');
+              setAnswerStatus(AnswerStatus.UNANSWERED);
+              if (inputRef.current) inputRef.current.focus();
+          }, [question]);
+          
+          useEffect(() => {
+              setAnswerStatus(initialStatus);
+          }, [initialStatus]);
+
+          const handleSubmit = (e) => {
+              e.preventDefault();
+              if (answer === '') return;
+              const isCorrect = String(answer).trim() === String(question.answer).trim();
+              setAnswerStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
+              onSubmit(isCorrect, answer);
+          };
+
+          const statusClasses = {
+              [AnswerStatus.CORRECT]: 'ring-green-500 bg-green-50',
+              [AnswerStatus.INCORRECT]: 'ring-red-500 bg-red-50',
+              [AnswerStatus.UNANSWERED]: 'ring-slate-300 focus-within:ring-blue-500'
+          };
+          
+          const themeFocusClass = {
+              powers: 'focus-within:ring-red-500',
+              rounding: 'focus-within:ring-green-500',
+              fractions: 'focus-within:ring-purple-500',
+              bedmas: 'focus-within:ring-sky-500'
+          };
+
+          const isNumberAnswer = typeof question.answer === 'number';
+
+          return (
+              <div className="bg-white p-8 rounded-xl shadow-lg">
+                  <form onSubmit={handleSubmit}>
+                      <div className="text-center text-3xl font-bold text-slate-800 mb-6 min-h-[40px] flex items-center justify-center">
+                          {question.text}
+                      </div>
+                      <div className={`ring-2 rounded-lg p-1 transition-all duration-200 ${statusClasses[answerStatus]} ${answerStatus === AnswerStatus.UNANSWERED ? themeFocusClass[colorTheme] : ''}`}>
+                          <input
+                              ref={inputRef}
+                              type={isNumberAnswer ? "number" : "text"}
+                              step={isNumberAnswer && String(question.answer).includes('.') ? "any" : "1"}
+                              value={answer}
+                              onChange={(e) => setAnswer(e.target.value)}
+                              disabled={answerStatus === AnswerStatus.CORRECT}
+                              className="w-full text-center text-3xl font-mono bg-transparent p-3 focus:outline-none"
+                              placeholder="?"
+                              aria-label="Your answer"
+                          />
+                      </div>
+                       {answerStatus === AnswerStatus.INCORRECT && (
+                          <div className="text-center mt-4 animate-fade-in">
+                              <p className="text-red-600 mb-2">Incorrect. The correct answer is: <strong>{correctAnswer}</strong></p>
+                              {question.explanation && <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg" dangerouslySetInnerHTML={{ __html: question.explanation }} />}
+                              <Button onClick={onIncorrect} className="mt-4" colorTheme={colorTheme}>Next Question</Button>
+                          </div>
+                      )}
+                      {answerStatus === AnswerStatus.UNANSWERED && (
+                          <Button fullWidth className="mt-6" disabled={!answer} colorTheme={colorTheme}>Submit Answer</Button>
+                      )}
+                  </form>
+              </div>
+          );
+      };
+
+      const FractionQuestionCard = ({ question, onSubmit, onIncorrect, answerStatus: initialStatus, correctAnswer, colorTheme }) => {
+          const [num, setNum] = useState('');
+          const [den, setDen] = useState('');
+          const [answerStatus, setAnswerStatus] = useState(initialStatus || AnswerStatus.UNANSWERED);
+          const numRef = useRef(null);
+
+          useEffect(() => {
+              setNum(''); setDen(''); setAnswerStatus(AnswerStatus.UNANSWERED);
+              if (numRef.current) numRef.current.focus();
+          }, [question]);
+
+          useEffect(() => { setAnswerStatus(initialStatus); }, [initialStatus]);
+
+          const handleSubmit = (e) => {
+              e.preventDefault();
+              if (num === '' || den === '') return;
+              const answer = `${num}/${den}`;
+              const isCorrect = answer === question.answer;
+              setAnswerStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
+              onSubmit(isCorrect, answer);
+          };
+          
+          const statusRingClass = answerStatus === AnswerStatus.CORRECT ? 'ring-green-500' : answerStatus === AnswerStatus.INCORRECT ? 'ring-red-500' : 'ring-slate-300';
+          const statusBgClass = answerStatus === AnswerStatus.CORRECT ? 'bg-green-50' : answerStatus === AnswerStatus.INCORRECT ? 'bg-red-50' : 'bg-white';
+          const themeFocusClass = `focus-within:ring-${colorTheme === 'fractions' ? 'purple' : 'blue'}-500`;
+
+          return (
+              <div className="bg-white p-8 rounded-xl shadow-lg">
+                  <form onSubmit={handleSubmit}>
+                      <div className="text-center text-3xl font-bold text-slate-800 mb-6 min-h-[40px] flex items-center justify-center">
+                          {question.text}
+                      </div>
+                      <div className={`flex flex-col items-center justify-center space-y-1 p-2 rounded-lg ring-2 transition-all ${statusRingClass} ${answerStatus === AnswerStatus.UNANSWERED ? themeFocusClass : ''} ${statusBgClass}`}>
+                          <input ref={numRef} type="number" value={num} onChange={e => setNum(e.target.value)} disabled={answerStatus === AnswerStatus.CORRECT} className="w-24 text-center text-3xl font-mono bg-transparent p-2 focus:outline-none border-b-2 border-slate-400 focus:border-blue-500" placeholder="n"/>
+                          <div className="w-28 h-px bg-slate-800 -my-1"></div>
+                          <input type="number" value={den} onChange={e => setDen(e.target.value)} disabled={answerStatus === AnswerStatus.CORRECT} className="w-24 text-center text-3xl font-mono bg-transparent p-2 focus:outline-none border-t-2 border-slate-400 focus:border-blue-500" placeholder="d"/>
+                      </div>
+                      {answerStatus === AnswerStatus.INCORRECT && (
+                          <div className="text-center mt-4 animate-fade-in">
+                              <p className="text-red-600 mb-2">Incorrect. The correct answer is: <strong>{correctAnswer}</strong></p>
+                              {question.explanation && <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg" dangerouslySetInnerHTML={{ __html: question.explanation }} />}
+                              <Button onClick={onIncorrect} className="mt-4" colorTheme={colorTheme}>Next Question</Button>
+                          </div>
+                      )}
+                      {answerStatus === AnswerStatus.UNANSWERED && (
+                          <Button fullWidth className="mt-6" disabled={!num || !den} colorTheme={colorTheme}>Submit Answer</Button>
+                      )}
+                  </form>
+              </div>
+          );
+      };
+      
+      const ConversionQuestionCard = ({ question, onSubmit, onIncorrect, colorTheme }) => {
+          const [decimal, setDecimal] = useState('');
+          const [percentage, setPercentage] = useState('');
+          const [fractionNum, setFractionNum] = useState('');
+          const [fractionDen, setFractionDen] = useState('');
+          const [answerStatus, setAnswerStatus] = useState({ decimal: AnswerStatus.UNANSWERED, percentage: AnswerStatus.UNANSWERED, fraction: AnswerStatus.UNANSWERED });
+
+          const firstInputRef = useRef(null);
+          useEffect(() => { if (firstInputRef.current) firstInputRef.current.focus(); }, [question]);
+
+          const handleSubmit = (e) => {
+              e.preventDefault();
+              let correctCount = 0;
+              const newStatus = { ...answerStatus };
+              
+              if (question.answer.decimal !== undefined) {
+                  const isCorrect = parseFloat(decimal) === question.answer.decimal;
+                  newStatus.decimal = isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT;
+                  if (isCorrect) correctCount++;
+              }
+              if (question.answer.percentage !== undefined) {
+                  const isCorrect = parseFloat(percentage) === question.answer.percentage;
+                  newStatus.percentage = isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT;
+                  if(isCorrect) correctCount++;
+              }
+              if (question.answer.fraction !== undefined) {
+                  const isCorrect = `${fractionNum}/${fractionDen}` === question.answer.fraction;
+                  newStatus.fraction = isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT;
+                  if (isCorrect) correctCount++;
+              }
+              
+              setAnswerStatus(newStatus);
+              const isAllCorrect = correctCount === Object.keys(question.answer).length;
+              onSubmit(isAllCorrect);
+          };
+          
+          const isSubmitted = Object.values(answerStatus).some(s => s !== AnswerStatus.UNANSWERED);
+          const isAllCorrect = Object.values(answerStatus).every(s => s === AnswerStatus.CORRECT || s === AnswerStatus.UNANSWERED);
+
+          const renderInput = (type) => {
+              const status = answerStatus[type];
+              const statusRingClass = status === AnswerStatus.CORRECT ? 'ring-green-500' : status === AnswerStatus.INCORRECT ? 'ring-red-500' : 'ring-slate-300';
+              const statusBgClass = status === AnswerStatus.CORRECT ? 'bg-green-50' : status === AnswerStatus.INCORRECT ? 'bg-red-50' : 'bg-white';
+              const themeFocusClass = `focus-within:ring-${colorTheme === 'fractions' ? 'purple' : 'blue'}-500`;
+
+              switch(type){
+                  case 'decimal': return <input ref={firstInputRef} type="number" step="any" value={decimal} onChange={e => setDecimal(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0.00" disabled={isAllCorrect}/>
+                  case 'percentage': return <input ref={!question.answer.decimal ? firstInputRef : null} type="number" value={percentage} onChange={e => setPercentage(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0" disabled={isAllCorrect}/>
+                  case 'fraction': return (
+                      <div className="flex flex-col items-center">
+                          <input ref={firstInputRef} type="number" value={fractionNum} onChange={e => setFractionNum(e.target.value)} className="w-20 text-center text-xl font-mono bg-transparent p-1 focus:outline-none border-b border-slate-400" placeholder="n" disabled={isAllCorrect}/>
+                           <div className="w-24 h-px bg-slate-800 my-1"></div>
+                          <input type="number" value={fractionDen} onChange={e => setFractionDen(e.target.value)} className="w-20 text-center text-xl font-mono bg-transparent p-1 focus:outline-none border-t border-slate-400" placeholder="d" disabled={isAllCorrect}/>
+                      </div>
+                  );
+              }
+          }
+
+          return (
+              <div className="bg-white p-8 rounded-xl shadow-lg">
+                  <form onSubmit={handleSubmit}>
+                      <div className="text-center text-slate-800 mb-6">
+                          <p className="text-lg">Convert:</p>
+                          <p className="text-4xl font-bold">{question.text}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6 items-center">
+                          {Object.keys(question.answer).map(type => (
+                              <div key={type} className="text-center">
+                                  <label className="font-semibold capitalize block mb-2">{type}</label>
+                                  <div className={`ring-2 rounded-lg p-1 transition-all ${answerStatus[type] === AnswerStatus.UNANSWERED ? themeFocusClass : ''} ${answerStatus[type] === AnswerStatus.CORRECT ? 'ring-green-500 bg-green-50' : answerStatus[type] === AnswerStatus.INCORRECT ? 'ring-red-500 bg-red-50' : 'ring-slate-300'}`}>
+                                      {renderInput(type)}
+                                  </div>
+                                  {answerStatus[type] === AnswerStatus.INCORRECT && <p className="text-red-500 text-sm mt-1">Correct: {question.answer[type]}</p>}
+                              </div>
+                          ))}
+                      </div>
+
+                      {!isAllCorrect && isSubmitted && (
+                          <div className="text-center mt-6 animate-fade-in">
+                              <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg" dangerouslySetInnerHTML={{ __html: question.explanation }} />
+                              <Button onClick={onIncorrect} className="mt-4" colorTheme={colorTheme}>Next Question</Button>
+                          </div>
+                      )}
+                      {!isSubmitted && (
+                          <Button fullWidth className="mt-6" colorTheme={colorTheme}>Submit Answer</Button>
+                      )}
+                  </form>
+              </div>
+          );
+      };
+
+      const OrderingQuestionCard = ({ question, onSubmit, onIncorrect, isChallengeMode = false, colorTheme }) => {
+          const [items, setItems] = useState(question.items);
+          const [orderedItems, setOrderedItems] = useState(Array(5).fill(null));
+          const [draggedItem, setDraggedItem] = useState(null);
+          const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
+
+          const handleDragStart = (e, item, source, index) => {
+              setDraggedItem({ item, source, index });
+              e.dataTransfer.effectAllowed = 'move';
+          };
+          
+          const handleDrop = (e, target, index) => {
+              e.preventDefault();
+              if (!draggedItem) return;
+
+              const { item, source, index: sourceIndex } = draggedItem;
+              
+              if (source === 'unordered') {
+                  setItems(items.filter(i => i.id !== item.id));
+              } else { // from ordered
+                  const newOrdered = [...orderedItems];
+                  newOrdered[sourceIndex] = null;
+                  setOrderedItems(newOrdered);
+              }
+              
+              if (target === 'unordered') {
+                  setItems([...items, item]);
+              } else { // to ordered
+                  const newOrdered = [...orderedItems];
+                  if (newOrdered[index]) { // If slot is occupied
+                      const displacedItem = newOrdered[index];
+                      if(source === 'unordered') setItems([...items.filter(i => i.id !== item.id), displacedItem]);
+                      else { newOrdered[sourceIndex] = displacedItem; }
+                  }
+                  newOrdered[index] = item;
+                  setOrderedItems(newOrdered);
+              }
+              setDraggedItem(null);
+          };
+
+          const handleSubmit = (e) => {
+              e.preventDefault();
+              const submittedAnswer = orderedItems.map(item => item ? item.id : null);
+              const isCorrect = JSON.stringify(submittedAnswer) === JSON.stringify(question.answer);
+              setAnswerStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
+              onSubmit(isCorrect);
+          };
+
+          const themeColor = colorTheme === 'fractions' ? 'purple' : 'blue';
+
+          const renderItem = (item) => (
+              <div className={`p-3 rounded-lg text-center font-semibold text-lg cursor-grab ${answerStatus === AnswerStatus.UNANSWERED ? `bg-${themeColor}-100 text-${themeColor}-800` : answerStatus === AnswerStatus.CORRECT ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {item.value}
+              </div>
+          );
+
+          return (
+              <div className="bg-white p-8 rounded-xl shadow-lg">
+                  <h3 className="text-xl text-center font-semibold text-slate-800 mb-6">Order the following from smallest to largest:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-3" onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'unordered')}>
+                          <h4 className="text-center font-medium text-slate-500">Unordered Items</h4>
+                          {items.map((item) => <div key={item.id} draggable onDragStart={e => handleDragStart(e, item, 'unordered')}>{renderItem(item)}</div>)}
+                          {items.length === 0 && <div className="h-10"></div>}
+                      </div>
+                      <div className="space-y-2 relative">
+                          <h4 className="text-center font-medium text-slate-500">Ordered Items</h4>
+                          {[...Array(5)].map((_, i) => (
+                              <div key={i} className={`h-16 flex items-center justify-center rounded-lg border-2 border-dashed ${orderedItems[i] ? 'border-transparent' : 'border-slate-300 bg-slate-50'}`}
+                                   onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'ordered', i)}>
+                                  {orderedItems[i] && <div className="w-full" draggable onDragStart={e => handleDragStart(e, orderedItems[i], 'ordered', i)}>{renderItem(orderedItems[i])}</div>}
+                              </div>
+                          ))}
+                           {['50%', '100%', '150%'].map((val, i) => (
+                                <div key={val} className="absolute left-[-40px] right-[-40px] text-xs text-slate-400 text-center border-t border-dashed" style={{ top: `${38 + (i * 72) + 36}px` }}>{val}</div>
+                           ))}
+                      </div>
+                  </div>
+                  {answerStatus === AnswerStatus.INCORRECT && (
+                      <div className="mt-6 text-center animate-fade-in">
+                           <p className="text-red-600 mb-2 font-semibold">That's not quite right.</p>
+                           {!isChallengeMode && <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg" dangerouslySetInnerHTML={{ __html: question.explanation }} />}
+                           <Button onClick={onIncorrect} className="mt-4" colorTheme={colorTheme}>Next Question</Button>
+                      </div>
+                  )}
+                  {answerStatus === AnswerStatus.UNANSWERED && (
+                      <Button fullWidth onClick={handleSubmit} disabled={orderedItems.some(i => i === null)} className="mt-6" colorTheme={colorTheme}>Submit Answer</Button>
+                  )}
+              </div>
+          );
+      };
+      
+      const BedmasQuestionCard = ({ question, onStepSubmit, currentStepIndex, showHint, setShowHint, colorTheme }) => {
+          const [subAnswer, setSubAnswer] = useState('');
+          const [status, setStatus] = useState(AnswerStatus.UNANSWERED);
+          const currentStep = question.steps[currentStepIndex];
+          const nextStepInfo = currentStep.nextStep;
+          const inputRef = useRef(null);
+
+          useEffect(() => {
+              setSubAnswer('');
+              setStatus(AnswerStatus.UNANSWERED);
+          }, [currentStepIndex]);
+          
+          const handleOpClick = (index) => {
+              if (index === nextStepInfo.opIndex) {
+                  setStatus(AnswerStatus.PARTIAL);
+                  setTimeout(() => inputRef.current?.focus(), 100);
+              } else {
+                  const clickedOp = currentStep.equation[index].value;
+                  const correctOp = PRECEDENCE[currentStep.equation[nextStepInfo.opIndex].value] > 2 ? 'Exponents' : PRECEDENCE[currentStep.equation[nextStepInfo.opIndex].value] > 1 ? 'Multiplication/Division' : 'Addition/Subtraction';
+                  alert(`Not quite! Remember BEDMAS. Check for any ${correctOp} operations first.`);
+              }
+          };
+
+          const handleSubAnswerSubmit = (e) => {
+              e.preventDefault();
+              const isCorrect = parseInt(subAnswer, 10) === nextStepInfo.answer;
+              setStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
+              if (isCorrect) setTimeout(() => onStepSubmit(true), 500);
+              else onStepSubmit(false);
+          };
+          
+          const themeColor = colorTheme === 'bedmas' ? 'sky' : 'blue';
+
+          const renderToken = (token, index, equation) => {
+               if(token.isImplied) return null;
+               
+               const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
+
+               if (token.type === 'operator') {
+                   const isClickable = status === AnswerStatus.UNANSWERED;
+                   return (
+                       <button key={index} type="button" disabled={!isClickable} onClick={() => handleOpClick(index)}
+                           className={`font-bold text-2xl p-1 rounded-md transition-colors ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'}`}>
+                           {token.value === '^' ? <sup className="-top-3 relative text-xl">2</sup> : displayValue}
+                       </button>
+                   );
+               }
+               return <span key={index} className="text-2xl">{displayValue}</span>;
+          };
+          
+          const getStepType = (op) => {
+              if (op === '^') return 'E';
+              if (op === '*' || op === '/') return 'DM';
+              if (op === '+' || op === '-') return 'AS';
+              return 'B'; // Fallback for logic inside brackets
+          };
+          
+          const currentStepType = getStepType(currentStep.equation[nextStepInfo.opIndex]?.value);
+
+
+          return (
+              <div className="bg-white p-8 rounded-xl shadow-lg w-full">
+                  <div className="flex justify-between items-center mb-4 border-b pb-4">
+                      <div className="flex items-center space-x-2 text-sm text-slate-600">
+                          <div className={`p-1 rounded-md ${showHint && currentStepType === 'B' ? `bg-${themeColor}-100 text-${themeColor}-700 font-bold` : ''}`}>B: Brackets</div>
+                          <div className={`p-1 rounded-md ${showHint && currentStepType === 'E' ? `bg-${themeColor}-100 text-${themeColor}-700 font-bold` : ''}`}>E: Exponents</div>
+                          <div className={`p-1 rounded-md ${showHint && currentStepType === 'DM' ? `bg-${themeColor}-100 text-${themeColor}-700 font-bold` : ''}`}>DM: Division/Multiplication</div>
+                          <div className={`p-1 rounded-md ${showHint && currentStepType === 'AS' ? `bg-${themeColor}-100 text-${themeColor}-700 font-bold` : ''}`}>AS: Addition/Subtraction</div>
+                      </div>
+                       <Button variant="light" onClick={() => setShowHint(true)}>Show Hint</Button>
+                  </div>
+
+                  <div className="space-y-2 mb-6 font-mono bg-slate-50 p-4 rounded-lg">
+                      {question.steps.slice(0, currentStepIndex + 1).map((step, i) => (
+                           <div key={i} className={`flex items-center space-x-2 transition-all duration-300 ${i === currentStepIndex ? 'opacity-100 font-bold' : 'opacity-50'}`}>
+                              {step.equation.map((token, j) => renderToken(token, j, step.equation))}
+                          </div>
+                      ))}
+                  </div>
+
+                  {status === AnswerStatus.UNANSWERED && <p className="text-center text-slate-700 font-semibold text-lg">Click the correct operator (+, -, ×, ÷, exponent) to solve the next step.</p>}
+                  
+                  {status === AnswerStatus.PARTIAL && (
+                       <form onSubmit={handleSubAnswerSubmit} className="text-center animate-fade-in bg-slate-100 p-4 rounded-lg">
+                           <label className="font-semibold text-lg mb-2 block">
+                               Solve: 
+                               <span className="font-mono ml-2">
+                               {nextStepInfo.subProblem.map(t => t.value === '*' ? '×' : t.value === '/' ? '÷' : t.value).join(' ')}
+                               </span>
+                           </label>
+                           <input ref={inputRef} type="number" value={subAnswer} onChange={e => setSubAnswer(e.target.value)} className={`w-24 text-center text-2xl font-mono bg-white p-2 rounded-md ring-2 ring-${themeColor}-300 focus:outline-none focus:ring-${themeColor}-500`} />
+                       </form>
+                  )}
+                  {status === AnswerStatus.INCORRECT && <p className="text-center text-red-500 font-bold text-lg animate-fade-in">Not quite, try that step again.</p>}
+              </div>
+          );
+      };
+
+
+      // --- APP ---
+      const App = () => {
+        const [appState, setAppState] = useState({ view: 'top_menu' });
+        const navigateToTopMenu = useCallback(() => setAppState({ view: 'top_menu' }), []);
+        
+        // Navigation functions
+        const navigateToPowersAndRootsMenu = useCallback(() => setAppState({ view: 'powers_menu' }), []);
+        const startPowersPractice = useCallback((mode) => setAppState({ view: 'powers_practice', mode }), []);
+        const startPowersChallenge = useCallback(() => setAppState({ view: 'powers_challenge' }), []);
+        
+        const navigateToRoundingMenu = useCallback(() => setAppState({ view: 'rounding_menu' }), []);
+        const startRoundingPractice = useCallback((mode) => setAppState({ view: 'rounding_practice', mode }), []);
+        const startRoundingSkillCheck = useCallback((type) => setAppState({ view: 'rounding_skill_check', skillCheckType: type }), []);
+        const startRoundingChallenge = useCallback(() => setAppState({ view: 'rounding_challenge' }), []);
+        
+        const navigateToFractionsMenu = useCallback(() => setAppState({ view: 'fractions_menu' }), []);
+        const startFractionsPractice = useCallback((mode) => setAppState({ view: 'fractions_practice', mode }), []);
+        const startFractionsSkillCheck = useCallback(() => setAppState({ view: 'fractions_skill_check' }), []);
+        const startFractionsChallenge = useCallback(() => setAppState({ view: 'fractions_challenge' }), []);
+        const startConversionPractice = useCallback((mode) => setAppState({ view: 'conversion_practice', mode }), []);
+        const startConversionSkillCheck = useCallback((type) => setAppState({ view: 'conversion_skill_check', skillCheckType: type }), []);
+        const startConversionChallenge = useCallback(() => setAppState({ view: 'conversion_challenge' }), []);
+        const startOrderingPractice = useCallback(() => setAppState({ view: 'ordering_practice', mode: GameMode.ORDERING_FDP }), []);
+        const startOrderingChallenge = useCallback(() => setAppState({ view: 'ordering_challenge' }), []);
+        
+        const navigateToBedmasMenu = useCallback(() => setAppState({ view: 'bedmas_menu' }), []);
+        const startBedmasPractice = useCallback((mode) => setAppState({ view: 'bedmas_practice', mode }), []);
+        const startBedmasChallenge = useCallback(() => setAppState({ view: 'bedmas_challenge' }), []);
+
+        const colorTheme = useMemo(() => {
+            const view = appState.view;
+            if (view.startsWith('powers')) return 'powers';
+            if (view.startsWith('rounding')) return 'rounding';
+            if (view.startsWith('fractions') || view.startsWith('conversion') || view.startsWith('ordering')) return 'fractions';
+            if (view.startsWith('bedmas')) return 'bedmas';
+            return 'primary';
+        }, [appState.view]);
+
+        const renderContent = () => {
+            switch (appState.view) {
+                // Main Menu
+                case 'top_menu': return <MainMenu onSelectPowersAndRoots={navigateToPowersAndRootsMenu} onSelectRounding={navigateToRoundingMenu} onSelectFractions={navigateToFractionsMenu} onSelectBedmas={navigateToBedmasMenu} />;
+                
+                // Powers & Roots
+                case 'powers_menu': return <PowersAndRootsMenu onStartPractice={startPowersPractice} onStartChallenge={startPowersChallenge} />;
+                case 'powers_practice': return <PracticeMode gameMode={appState.mode} onExit={navigateToPowersAndRootsMenu} colorTheme={colorTheme} />;
+                case 'powers_challenge': return <ChallengeMode onExit={navigateToPowersAndRootsMenu} storageKey={HIGH_SCORE_STORAGE_KEY} duration={CHALLENGE_DURATION_SECONDS} gameModes={[GameMode.SQUARES, GameMode.CUBES, GameMode.SQUARE_ROOTS]} title="Powers & Roots" colorTheme={colorTheme} />;
+                
+                // Rounding
+                case 'rounding_menu': return <RoundingMenu onStartPractice={startRoundingPractice} onStartSkillCheck={startRoundingSkillCheck} onStartChallenge={startRoundingChallenge} />;
+                case 'rounding_practice': return <PracticeMode gameMode={appState.mode} onExit={navigateToRoundingMenu} colorTheme={colorTheme} />;
+                case 'rounding_skill_check': return <SkillCheckMode onExit={navigateToRoundingMenu} gameMode={appState.skillCheckType} skillCheckType="rounding" colorTheme={colorTheme} />;
+                case 'rounding_challenge': return <RoundingChallengeMode onExit={navigateToRoundingMenu} storageKey={ROUNDING_HIGH_SCORE_STORAGE_KEY} duration={CHALLENGE_DURATION_SECONDS} colorTheme={colorTheme} />;
+                
+                // Fractions, Decimals, Percentages
+                case 'fractions_menu': return <FractionsMenu onStartPractice={{ simplifying: startFractionsPractice, converting: startConversionPractice, ordering: startOrderingPractice }} onStartSkillCheck={{ simplifying: startFractionsSkillCheck, converting: startConversionSkillCheck }} onStartChallenge={{ simplifying: startFractionsChallenge, converting: startConversionChallenge, ordering: startOrderingChallenge }} />;
+                case 'fractions_practice': return <PracticeMode gameMode={appState.mode} onExit={navigateToFractionsMenu} colorTheme={colorTheme} />;
+                case 'fractions_skill_check': return <SkillCheckMode onExit={navigateToFractionsMenu} gameMode={GameMode.SIMPLIFY_FRACTIONS} skillCheckType="simplifying" colorTheme={colorTheme} />;
+                case 'fractions_challenge': return <FractionsChallengeMode onExit={navigateToFractionsMenu} storageKey={FRACTIONS_HIGH_SCORE_STORAGE_KEY} duration={CHALLENGE_DURATION_SECONDS} colorTheme={colorTheme} />;
+                case 'conversion_practice': return <PracticeMode gameMode={appState.mode} onExit={navigateToFractionsMenu} colorTheme={colorTheme} />;
+                case 'conversion_skill_check': return <ConversionSkillCheckMode onExit={navigateToFractionsMenu} skillCheckType={appState.skillCheckType} colorTheme={colorTheme} />;
+                case 'conversion_challenge': return <ConversionChallengeMode onExit={navigateToFractionsMenu} storageKey={CONVERSIONS_HIGH_SCORE_STORAGE_KEY} duration={CHALLENGE_DURATION_SECONDS} colorTheme={colorTheme} />;
+                case 'ordering_practice': return <PracticeMode gameMode={appState.mode} onExit={navigateToFractionsMenu} colorTheme={colorTheme} />;
+                case 'ordering_challenge': return <OrderingChallengeMode onExit={navigateToFractionsMenu} storageKey={ORDERING_HIGH_SCORE_STORAGE_KEY} duration={ORDERING_CHALLENGE_DURATION_SECONDS} colorTheme={colorTheme} />;
+                
+                // BEDMAS
+                case 'bedmas_menu': return <BedmasMenu onStartPractice={startBedmasPractice} onStartChallenge={startBedmasChallenge} />;
+                case 'bedmas_practice': return <BedmasPracticeMode onExit={navigateToBedmasMenu} colorTheme={colorTheme} />;
+                case 'bedmas_challenge': return <BedmasChallengeMode onExit={navigateToBedmasMenu} storageKey={BEDMAS_HIGH_SCORE_STORAGE_KEY} duration={BEDMAS_CHALLENGE_DURATION_SECONDS} colorTheme={colorTheme} />;
+                
+                default: return <MainMenu onSelectPowersAndRoots={navigateToPowersAndRootsMenu} onSelectRounding={navigateToRoundingMenu} onSelectFractions={navigateToFractionsMenu} onSelectBedmas={navigateToBedmasMenu} />;
+            }
+        };
+
+        return (
+          <div className="min-h-screen flex flex-col items-center justify-center p-4">
+            <Header onHomeClick={navigateToTopMenu} showHomeButton={appState.view !== 'top_menu'} colorTheme={colorTheme} />
+            <main className="w-full max-w-4xl mx-auto flex-grow flex items-center justify-center">
+              {renderContent()}
+            </main>
+            <footer className="text-center text-slate-500 mt-8 text-sm h-10">
+              <p>Welcome to the Maths Skills Arena. Practice and master your skills.</p>
+            </footer>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<React.StrictMode><App /></React.StrictMode>);
     </script>
   </body>
 </html>
