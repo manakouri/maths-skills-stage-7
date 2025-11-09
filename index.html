@@ -48,7 +48,7 @@
 
       // --- CONSTANTS ---
       const SQUARES_MAX = 12;
-      const CUBES_MAX = 7;
+      const CUBES_MAX = 5;
       const SQUARE_ROOTS_MAX = 12;
       const CHALLENGE_DURATION_SECONDS = 60;
       const ORDERING_CHALLENGE_DURATION_SECONDS = 180;
@@ -347,7 +347,7 @@
                       case GameMode.ROUND_HUNDREDTHS: { const n = parseFloat((Math.random() * 9.99 + 0.01).toFixed(3)); const ans = parseFloat(n.toFixed(2)); const d = Math.floor((n * 1000) % 10); question = { id, text: `Round ${n} to the nearest hundredth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'hundredth', d, String(n).indexOf('.') + 3), type: mode }; break; }
                       case GameMode.ROUND_THOUSANDTHS: { const n = parseFloat((Math.random() * 9.999 + 0.001).toFixed(4)); const ans = parseFloat(n.toFixed(3)); const d = Math.floor((n * 10000) % 10); question = { id, text: `Round ${n} to the nearest thousandth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'thousandth', d, String(n).indexOf('.') + 4), type: mode }; break; }
                       case GameMode.SIMPLIFY_FRACTIONS: { const f = simpleFractions[Math.floor(Math.random() * simpleFractions.length)]; const m = Math.floor(Math.random() * 8) + 2; const num = f.n * m; const den = f.d * m; if (den > 100) { attempts++; continue; } const ans = `${f.n}/${f.d}`; question = { id, text: formatFractionText('Simplify {fraction}', num, den), answer: ans, explanation: generateFractionExplanation(num, den, hcf(num, den), f.n, f.d), type: mode }; break; }
-                      case GameMode.CONVERT_FRACTIONS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { decimal: val.decimal, percentage: val.percentage }; const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5; const text = showMixed ? <>{Math.floor(val.fraction.numerator / val.fraction.denominator)} <span className="text-2xl align-middle mx-1"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> : <span className="text-3xl mx-1"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span>; question = { id, text, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the numerator by the denominator: ${val.fraction.numerator} &divide; ${val.fraction.denominator} = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div></div>` }; break; }
+                      case GameMode.CONVERT_FRACTIONS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { decimal: val.decimal, percentage: val.percentage }; const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5; const text = showMixed ? <>{Math.floor(val.fraction.numerator / val.fraction.denominator)} <span className="text-2xl align-middle mx-2"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> : <span className="text-3xl mx-2"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span>; question = { id, text, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the numerator by the denominator: ${val.fraction.numerator} &divide; ${val.fraction.denominator} = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div></div>` }; break; }
                       case GameMode.CONVERT_DECIMALS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { fraction: `${val.fraction.numerator}/${val.fraction.denominator}`, percentage: val.percentage }; question = { id, text: `${val.decimal}`, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div><div><h4 class="font-semibold">To Fraction:</h4><p>${val.decimal} is equal to <sup>${val.decimal * 100}</sup>/<sub>100</sub>, which simplifies to <strong><sup>${val.fraction.numerator}</sup>/<sub>${val.fraction.denominator}</sub></strong>.</p></div></div>` }; break; }
                       case GameMode.CONVERT_PERCENTAGES: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { fraction: `${val.fraction.numerator}/${val.fraction.denominator}`, decimal: val.decimal }; question = { id, text: `${val.percentage}%`, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the percentage by 100: ${val.percentage} &divide; 100 = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Fraction:</h4><p>${val.percentage}% is equal to <sup>${val.percentage}</sup>/<sub>100</sub>, which simplifies to <strong><sup>${val.fraction.numerator}</sup>/<sub>${val.fraction.denominator}</sub></strong>.</p></div></div>` }; break; }
                       case GameMode.BEDMAS: { question = { id, text: 'Solve the equation step-by-step.', answer: generateBedmasQuestion(), type: mode }; break; }
@@ -390,7 +390,7 @@
                       const ans = conversionType === 'decimal' ? val.decimal : val.percentage;
                       const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5;
                       const fractionText = showMixed ? `${Math.floor(val.fraction.numerator/val.fraction.denominator)} ${val.fraction.numerator % val.fraction.denominator}/${val.fraction.denominator}` : `${val.fraction.numerator}/${val.fraction.denominator}`;
-                      const text = <>Convert <span className="font-mono mx-1">{fractionText}</span> to a {conversionType}</>;
+                      const text = <>Convert <span className="font-mono mx-2">{fractionText}</span> to a {conversionType}</>;
                       q = { text, answer: ans, skillCheckSubType: `Fraction to ${conversionType}` };
                   } else if (type === 'decimals') {
                       const ans = conversionType === 'percentage' ? val.percentage : `${val.fraction.numerator}/${val.fraction.denominator}`;
@@ -544,9 +544,9 @@
         <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
             <h2 className="text-3xl font-bold text-center mb-8">Powers & Roots</h2>
             <div className="space-y-4">
-                <Button onClick={() => onStartPractice(GameMode.SQUARES)} variant="default" fullWidth><SquareIcon className="w-6 h-6 mr-3"/>Practice Squares (up to 12²)</Button>
-                <Button onClick={() => onStartPractice(GameMode.CUBES)} variant="default" fullWidth><CubeIcon className="w-6 h-6 mr-3"/>Practice Cubes (up to 7³)</Button>
-                <Button onClick={() => onStartPractice(GameMode.SQUARE_ROOTS)} variant="default" fullWidth><SquareRootIcon className="w-6 h-6 mr-3"/>Practice Square Roots</Button>
+                <Button onClick={() => onStartPractice(GameMode.SQUARES)} variant="default" fullWidth>Practice Squares (up to 12²)</Button>
+                <Button onClick={() => onStartPractice(GameMode.CUBES)} variant="default" fullWidth>Practice Cubes (up to 5³)</Button>
+                <Button onClick={() => onStartPractice(GameMode.SQUARE_ROOTS)} variant="default" fullWidth>Practice Square Roots</Button>
                 <div className="border-t border-slate-200 my-6"></div>
                 <Button onClick={onStartChallenge} fullWidth colorTheme="powers"><TimerIcon className="w-6 h-6 mr-3"/>Timed Challenge</Button>
             </div>
@@ -632,7 +632,7 @@
         <div className="w-full max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg animate-fade-in">
             <h2 className="text-3xl font-bold text-center mb-8">BEDMAS</h2>
             <div className="space-y-4">
-                <Button onClick={() => onStartPractice(GameMode.BEDMAS)} variant="default" fullWidth>Full Practice</Button>
+                <Button onClick={() => onStartPractice(GameMode.BEDMAS)} variant="default" fullWidth>Practice BEDMAS</Button>
                 <div className="border-t border-slate-200 my-6"></div>
                 <Button onClick={onStartChallenge} fullWidth colorTheme="bedmas"><TimerIcon className="w-6 h-6 mr-3"/>Timed Challenge</Button>
             </div>
@@ -1556,7 +1556,10 @@
           const handleSubmit = (e) => {
               e.preventDefault();
               if (answer === '') return;
-              const isCorrect = Math.abs(parseFloat(answer) - parseFloat(correctAnswer)) < 0.0001;
+              const isPowerOrRoot = [GameMode.SQUARES, GameMode.CUBES, GameMode.SQUARE_ROOTS].includes(question.type);
+              const isCorrect = isPowerOrRoot 
+                  ? Number(answer) === correctAnswer
+                  : Math.abs(parseFloat(answer) - parseFloat(correctAnswer)) < 0.0001;
               setAnswerStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
               onSubmit(isCorrect, answer);
           };
@@ -1863,7 +1866,7 @@
                       <div className="space-y-2 relative">
                           <h4 className="text-center font-medium text-slate-500">Ordered Items</h4>
                           {[...Array(5)].map((_, i) => (
-                              <div key={i} className={`h-16 flex items-center justify-center rounded-lg border-2 border-dashed ${orderedItems[i] ? 'border-transparent' : 'border-slate-300 bg-slate-50'}`}
+                              <div key={i} className={`h-16 flex items-center justify-center rounded-lg ${orderedItems[i] ? '' : 'bg-slate-50'}`}
                                    onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'ordered', i)}>
                                   {orderedItems[i] && <div className="w-full" draggable onDragStart={e => handleDragStart(e, orderedItems[i], 'ordered', i)}>{renderItem(orderedItems[i])}</div>}
                               </div>
@@ -1923,7 +1926,6 @@
                   setTimeout(() => onStepSubmit(true), 500);
               } else {
                   setStatus(AnswerStatus.INCORRECT);
-                  onStepSubmit(false); // Let parent know, but don't proceed
                   setTimeout(() => {
                       setStatus(AnswerStatus.PARTIAL); // Re-enable input
                       setSubAnswer('');
@@ -1937,21 +1939,27 @@
                if(token.isImplied) return null;
 
                if (token.type === 'operator') {
+                   if (token.value === '^') return null; // Exponent operator is not rendered directly
                    const isClickable = status === AnswerStatus.UNANSWERED;
                    const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
-                   const isExponent = token.value === '^';
                    return (
                        <button key={index} type="button" disabled={!isClickable} onClick={() => handleOpClick(index)}
-                           className={`font-bold p-1 rounded-md transition-colors mx-1 ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'} ${isExponent ? 'text-2xl -top-3 relative' : 'text-3xl'}`}>
-                           {isExponent ? ' ' : displayValue}
-                           {isExponent && <span className="absolute text-sm -top-1 -right-0.5">exponent</span>}
+                           className={`font-bold p-1 rounded-md transition-colors mx-1 text-3xl ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'}`}>
+                           {displayValue}
                        </button>
                    );
                }
                
                const isExponentValue = equation[index-1] && equation[index-1].value === '^';
                if(isExponentValue) {
-                   return <sup key={index} className="text-2xl -top-3 relative -left-1">{token.value}</sup>
+                   const isClickable = status === AnswerStatus.UNANSWERED;
+                   return (
+                       <sup key={index} className="text-2xl -top-3 relative -left-1">
+                           <button type="button" disabled={!isClickable} onClick={() => handleOpClick(index - 1)} className={`font-bold p-1 rounded-md transition-colors ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'}`}>
+                               {token.value}
+                           </button>
+                       </sup>
+                   );
                }
                
                return <span key={index} className="text-3xl">{token.value}</span>;
@@ -2005,7 +2013,7 @@
                       ))}
                   </div>
 
-                  {status === AnswerStatus.UNANSWERED && <p className="text-center text-slate-700 font-semibold text-lg">Click the correct operator (+, -, ×, ÷, exponent) to solve the next step.</p>}
+                  {status === AnswerStatus.UNANSWERED && <p className="text-center text-slate-700 font-semibold text-lg">Click the correct operator (+, -, ×, ÷) or exponent to solve the next step.</p>}
                   
                   {status === AnswerStatus.PARTIAL && (
                        <form onSubmit={handleSubAnswerSubmit} className="text-center animate-fade-in bg-slate-100 p-4 rounded-lg">
