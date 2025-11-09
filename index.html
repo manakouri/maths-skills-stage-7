@@ -124,7 +124,7 @@
           const generateFractionExplanation = (numerator, denominator, divisor, newNumerator, newDenominator) => {
               return `
                   <div class="space-y-2 text-left">
-                      <p>To simplify <sup>${numerator}</sup>/<sub>${denominator}</sub>, we find the Highest Common Factor (HCF) of the numerator and the denominator.</p>
+                      <p>To simplify the fraction, we find the Highest Common Factor (HCF) of the numerator and the denominator.</p>
                       <p>The HCF of ${numerator} and ${denominator} is <strong>${divisor}</strong>.</p>
                       <p>We divide both the numerator and the denominator by the HCF:</p>
                       <p class="text-center text-lg my-2">
@@ -158,8 +158,9 @@
                   const content = buildRandomEquation(depth + 1, complexity);
                   return [{ type: 'bracket', value: '(' }, ...content, { type: 'bracket', value: ')' }];
               } else { // Exponent
-                  const base = buildRandomEquation(complexity, complexity); 
-                  const exponentValue = 2; // Keep it simple for now
+                  const baseNumber = Math.floor(Math.random() * 5) + 2;
+                  const base = [{ type: 'number', value: baseNumber }];
+                  const exponentValue = 2; 
                   return [...base, { type: 'operator', value: '^' }, { type: 'number', value: exponentValue }];
               }
           };
@@ -216,11 +217,24 @@
               if (bestOpIndex === -1) return null;
               
               let start = bestOpIndex -1; let end = bestOpIndex + 1;
-              while (start > 0 && tokens[start].type !== 'operator' && tokens[start].value !== '(') start--;
-              while (end < tokens.length-1 && tokens[end].type !== 'operator' && tokens[end].value !== ')') end++;
+              if(tokens[bestOpIndex].value === '^') {
+                start = bestOpIndex - 1;
+                end = bestOpIndex + 1;
+              } else {
+                 while (start > 0 && (tokens[start].type === 'number' || (tokens[start].type === 'bracket' && tokens[start].value === ')'))) start--;
+                 while (end < tokens.length-1 && (tokens[end].type === 'number' || (tokens[end].type === 'bracket' && tokens[end].value === '('))) end++;
               
-              if(tokens[start].type === 'operator' || tokens[start].value === '(') start++;
-              if(tokens[end].type === 'operator' || tokens[end].value === ')') end--;
+                 if(tokens[start].type !== 'number') start++;
+                 if(tokens[end].type !== 'number') end--;
+              }
+
+              let leftPointer = bestOpIndex - 1;
+              while(leftPointer >= 0 && tokens[leftPointer].type !== 'operator' && tokens[leftPointer].value !== '(') leftPointer--;
+              start = leftPointer + 1;
+
+              let rightPointer = bestOpIndex + 1;
+              while(rightPointer < tokens.length && tokens[rightPointer].type !== 'operator' && tokens[rightPointer].value !== ')') rightPointer++;
+              end = rightPointer - 1;
 
               return { opIndex: bestOpIndex, start, end };
           };
@@ -229,7 +243,7 @@
               let attempts = 0;
               while (attempts < 200) {
                   try {
-                      const complexity = Math.floor(Math.random() * 2) + 3; // 3 to 4
+                      const complexity = Math.floor(Math.random() * 2) + 3;
                       let equation = buildRandomEquation(0, complexity);
                       
                       let hasBrackets = false, hasExponents = false, hasMulDiv = false, hasAddSub = false;
@@ -244,7 +258,6 @@
                           attempts++; continue;
                       }
                       
-                      // Insert implied multiplication
                       for(let i=0; i < equation.length - 1; i++){
                           if(equation[i].type === 'number' && equation[i+1].type === 'bracket' && equation[i+1].value === '('){
                                equation.splice(i+1, 0, { type: 'operator', value: '*', isImplied: true });
@@ -271,7 +284,6 @@
                           for(let i=0; i < newEq.length; i++) {
                               if(newEq[i].type === 'operator' && newEq[i].isImplied) {
                                   if(i > 0 && newEq[i-1].type === 'number' && i < newEq.length - 1 && (newEq[i+1].type === 'number' || newEq[i+1].value === '(')) {
-                                      // un-imply it
                                       delete newEq[i].isImplied;
                                   }
                               }
@@ -300,8 +312,8 @@
                   <div className="flex items-center justify-center space-x-1 text-3xl font-mono text-center">
                       {equation.map((token, index) => {
                           if (token.isImplied) return null;
-                           if (equation[index - 1] && equation[index-1].value === '^') {
-                              return <sup key={index} className="text-2xl -top-3 relative">{token.value}</sup>;
+                           if (index > 0 && equation[index - 1].value === '^') {
+                              return <sup key={index} className="text-2xl -top-3 relative -left-1">{token.value}</sup>;
                           }
                           const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value === '^' ? '' : token.value;
                           return <span key={index}>{displayValue}</span>;
@@ -311,6 +323,11 @@
 
               return { id: `bedmas-challenge-${Date.now()}`, text: equationNode, answer: bedmasQuestion.finalAnswer, type: 'BEDMAS_CHALLENGE' };
           };
+          
+          const formatFractionText = (text, num, den) => {
+             const fractionHtml = `<span class="inline-block mx-2 text-center align-middle leading-none"><span class="block text-lg">${num}</span><span class="block border-t-2 border-slate-800 w-full my-1"></span><span class="block text-lg">${den}</span></span>`;
+             return <span dangerouslySetInnerHTML={{ __html: text.replace('{fraction}', fractionHtml) }} />;
+          }
 
           const generateQuestion = (mode, usedAnswers = new Set()) => {
               const id = `${Date.now()}-${Math.random()}`;
@@ -329,8 +346,8 @@
                       case GameMode.ROUND_TENTHS: { const n = parseFloat((Math.random() * 9.9 + 0.1).toFixed(2)); const ans = parseFloat(n.toFixed(1)); const d = Math.floor((n * 100) % 10); question = { id, text: `Round ${n} to the nearest tenth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'tenth', d, String(n).indexOf('.') + 2), type: mode }; break; }
                       case GameMode.ROUND_HUNDREDTHS: { const n = parseFloat((Math.random() * 9.99 + 0.01).toFixed(3)); const ans = parseFloat(n.toFixed(2)); const d = Math.floor((n * 1000) % 10); question = { id, text: `Round ${n} to the nearest hundredth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'hundredth', d, String(n).indexOf('.') + 3), type: mode }; break; }
                       case GameMode.ROUND_THOUSANDTHS: { const n = parseFloat((Math.random() * 9.999 + 0.001).toFixed(4)); const ans = parseFloat(n.toFixed(3)); const d = Math.floor((n * 10000) % 10); question = { id, text: `Round ${n} to the nearest thousandth`, answer: ans, explanation: generateRoundingExplanation(n, ans, 'thousandth', d, String(n).indexOf('.') + 4), type: mode }; break; }
-                      case GameMode.SIMPLIFY_FRACTIONS: { const f = simpleFractions[Math.floor(Math.random() * simpleFractions.length)]; const m = Math.floor(Math.random() * 8) + 2; const num = f.n * m; const den = f.d * m; if (den > 100) { attempts++; continue; } const ans = `${f.n}/${f.d}`; question = { id, text: <>Simplify <span className="inline-flex flex-col text-center align-middle text-2xl"><span>{num}</span><span className="border-t-2 border-slate-800 w-full"></span><span>{den}</span></span></>, answer: ans, explanation: generateFractionExplanation(num, den, hcf(num, den), f.n, f.d), type: mode }; break; }
-                      case GameMode.CONVERT_FRACTIONS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { decimal: val.decimal, percentage: val.percentage }; const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5; const text = showMixed ? <>{Math.floor(val.fraction.numerator / val.fraction.denominator)} <span className="text-2xl align-middle"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> : <span className="text-3xl"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span>; question = { id, text, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the numerator by the denominator: ${val.fraction.numerator} &divide; ${val.fraction.denominator} = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div></div>` }; break; }
+                      case GameMode.SIMPLIFY_FRACTIONS: { const f = simpleFractions[Math.floor(Math.random() * simpleFractions.length)]; const m = Math.floor(Math.random() * 8) + 2; const num = f.n * m; const den = f.d * m; if (den > 100) { attempts++; continue; } const ans = `${f.n}/${f.d}`; question = { id, text: formatFractionText('Simplify {fraction}', num, den), answer: ans, explanation: generateFractionExplanation(num, den, hcf(num, den), f.n, f.d), type: mode }; break; }
+                      case GameMode.CONVERT_FRACTIONS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { decimal: val.decimal, percentage: val.percentage }; const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5; const text = showMixed ? <>{Math.floor(val.fraction.numerator / val.fraction.denominator)} <span className="text-2xl align-middle mx-1"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> : <span className="text-3xl mx-1"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span>; question = { id, text, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the numerator by the denominator: ${val.fraction.numerator} &divide; ${val.fraction.denominator} = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div></div>` }; break; }
                       case GameMode.CONVERT_DECIMALS: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { fraction: `${val.fraction.numerator}/${val.fraction.denominator}`, percentage: val.percentage }; question = { id, text: `${val.decimal}`, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Percentage:</h4><p>Multiply the decimal by 100: ${val.decimal} &times; 100 = <strong>${val.percentage}%</strong>.</p></div><div><h4 class="font-semibold">To Fraction:</h4><p>${val.decimal} is equal to <sup>${val.decimal * 100}</sup>/<sub>100</sub>, which simplifies to <strong><sup>${val.fraction.numerator}</sup>/<sub>${val.fraction.denominator}</sub></strong>.</p></div></div>` }; break; }
                       case GameMode.CONVERT_PERCENTAGES: { const val = conversionValues[Math.floor(Math.random() * conversionValues.length)]; const ans = { fraction: `${val.fraction.numerator}/${val.fraction.denominator}`, decimal: val.decimal }; question = { id, text: `${val.percentage}%`, answer: ans, type: mode, explanation: `<div class="space-y-3 text-left"><div><h4 class="font-semibold">To Decimal:</h4><p>Divide the percentage by 100: ${val.percentage} &divide; 100 = <strong>${val.decimal}</strong>.</p></div><div><h4 class="font-semibold">To Fraction:</h4><p>${val.percentage}% is equal to <sup>${val.percentage}</sup>/<sub>100</sub>, which simplifies to <strong><sup>${val.fraction.numerator}</sup>/<sub>${val.fraction.denominator}</sub></strong>.</p></div></div>` }; break; }
                       case GameMode.BEDMAS: { question = { id, text: 'Solve the equation step-by-step.', answer: generateBedmasQuestion(), type: mode }; break; }
@@ -372,8 +389,9 @@
                   if (type === 'fractions') {
                       const ans = conversionType === 'decimal' ? val.decimal : val.percentage;
                       const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5;
-                      const text = showMixed ? <>{Math.floor(val.fraction.numerator/val.fraction.denominator)} <span className="text-2xl align-middle"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> : <span className="text-3xl"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span>;
-                      q = { text: <>Convert {text} to a {conversionType}</>, answer: ans, skillCheckSubType: `Fraction to ${conversionType}` };
+                      const fractionText = showMixed ? `${Math.floor(val.fraction.numerator/val.fraction.denominator)} ${val.fraction.numerator % val.fraction.denominator}/${val.fraction.denominator}` : `${val.fraction.numerator}/${val.fraction.denominator}`;
+                      const text = <>Convert <span className="font-mono mx-1">{fractionText}</span> to a {conversionType}</>;
+                      q = { text, answer: ans, skillCheckSubType: `Fraction to ${conversionType}` };
                   } else if (type === 'decimals') {
                       const ans = conversionType === 'percentage' ? val.percentage : `${val.fraction.numerator}/${val.fraction.denominator}`;
                       q = { text: `Convert ${val.decimal} to a ${conversionType === 'percentage' ? 'percentage' : 'fraction'}`, answer: ans, skillCheckSubType: `Decimal to ${conversionType === 'percentage' ? 'percentage' : 'fraction'}` };
@@ -401,21 +419,28 @@
               const items = shuffled.slice(0, 5).map((val, i) => {
                   const typeChance = Math.random();
                   let value;
+                  let stringValue;
                   let type;
                   if (typeChance < 0.33) {
                       type = 'fraction';
                       const showMixed = val.fraction.numerator > val.fraction.denominator && Math.random() > 0.5;
-                      value = showMixed ?
-                          <>{Math.floor(val.fraction.numerator/val.fraction.denominator)} <span className="text-sm align-middle"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></> :
-                          <><span className="text-lg"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span></>;
+                      if (showMixed) {
+                          stringValue = `${Math.floor(val.fraction.numerator/val.fraction.denominator)} ${val.fraction.numerator % val.fraction.denominator}/${val.fraction.denominator}`;
+                          value = <>{Math.floor(val.fraction.numerator/val.fraction.denominator)} <span className="text-sm align-middle"><sup>{val.fraction.numerator % val.fraction.denominator}</sup>/<sub>{val.fraction.denominator}</sub></span></>;
+                      } else {
+                          stringValue = `${val.fraction.numerator}/${val.fraction.denominator}`;
+                          value = <><span className="text-lg"><sup>{val.fraction.numerator}</sup>/<sub>{val.fraction.denominator}</sub></span></>;
+                      }
                   } else if (typeChance < 0.66) {
                       type = 'decimal';
                       value = val.decimal;
+                      stringValue = val.decimal.toString();
                   } else {
                       type = 'percentage';
                       value = `${val.percentage}%`;
+                      stringValue = `${val.percentage}%`;
                   }
-                  return { id: `item-${i}`, value, type, originalValue: val.decimal };
+                  return { id: `item-${i}`, value, stringValue, type, originalValue: val.decimal };
               });
               
               const sorted = [...items].sort((a, b) => a.originalValue - b.originalValue);
@@ -423,7 +448,7 @@
 
               const explanationTable = sorted.map(item => `
                   <tr>
-                      <td class="p-2 border-r text-center">${item.type === 'fraction' ? `(fraction)` : item.value}</td>
+                      <td class="p-2 border-r text-center">${item.stringValue}</td>
                       <td class="p-2 text-center font-semibold text-purple-700">${Math.round(item.originalValue * 100)}%</td>
                   </tr>
               `).join('');
@@ -1530,7 +1555,7 @@
           const handleSubmit = (e) => {
               e.preventDefault();
               if (answer === '') return;
-              const isCorrect = String(answer).trim() === String(question.answer).trim();
+              const isCorrect = Math.abs(parseFloat(answer) - parseFloat(correctAnswer)) < 0.0001;
               setAnswerStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
               onSubmit(isCorrect, answer);
           };
@@ -1690,7 +1715,7 @@
               const newStatus = { ...answerStatus };
               
               if (question.answer.decimal !== undefined) {
-                  const isCorrect = parseFloat(decimal) === question.answer.decimal;
+                  const isCorrect = Math.abs(parseFloat(decimal) - question.answer.decimal) < 0.0001;
                   newStatus.decimal = isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT;
                   if (isCorrect) correctCount++;
               }
@@ -1722,9 +1747,9 @@
 
           const renderInput = (type) => {
               switch(type){
-                  case 'decimal': return <input ref={firstInputRef} type="number" step="any" value={decimal} onChange={e => setDecimal(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0.00" disabled={isDisabled}/>
-                  case 'percentage': return <input ref={!question.answer.decimal ? firstInputRef : null} type="number" value={percentage} onChange={e => setPercentage(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0" disabled={isDisabled}/>
-                  case 'fraction': return <input ref={!question.answer.decimal && !question.answer.percentage ? firstInputRef : null} type="text" value={fraction} onChange={e => setFraction(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="n/d" disabled={isDisabled}/>
+                  case 'decimal': return <input ref={firstInputRef} type="number" step="any" value={decimal} onChange={e => setDecimal(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0.00" disabled={isDisabled} autoFocus/>
+                  case 'percentage': return <input ref={!question.answer.decimal ? firstInputRef : null} type="number" value={percentage} onChange={e => setPercentage(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="0" disabled={isDisabled} autoFocus={!question.answer.decimal} />
+                  case 'fraction': return <input ref={!question.answer.decimal && !question.answer.percentage ? firstInputRef : null} type="text" value={fraction} onChange={e => setFraction(e.target.value)} className="w-full text-center text-xl font-mono bg-transparent p-2 focus:outline-none" placeholder="n/d" disabled={isDisabled} autoFocus={!question.answer.decimal && !question.answer.percentage}/>
               }
           }
 
@@ -1892,11 +1917,16 @@
           const handleSubAnswerSubmit = (e) => {
               e.preventDefault();
               const isCorrect = parseInt(subAnswer, 10) === nextStepInfo.answer;
-              setStatus(isCorrect ? AnswerStatus.CORRECT : AnswerStatus.INCORRECT);
               if (isCorrect) {
-                 setTimeout(() => onStepSubmit(true), 500);
+                  setStatus(AnswerStatus.CORRECT);
+                  setTimeout(() => onStepSubmit(true), 500);
               } else {
-                 onStepSubmit(false); // Let parent know, but don't proceed
+                  setStatus(AnswerStatus.INCORRECT);
+                  onStepSubmit(false); // Let parent know, but don't proceed
+                  setTimeout(() => {
+                      setStatus(AnswerStatus.PARTIAL); // Re-enable input
+                      setSubAnswer('');
+                  }, 1500);
               }
           };
           
@@ -1908,17 +1938,19 @@
                if (token.type === 'operator') {
                    const isClickable = status === AnswerStatus.UNANSWERED;
                    const displayValue = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
+                   const isExponent = token.value === '^';
                    return (
                        <button key={index} type="button" disabled={!isClickable} onClick={() => handleOpClick(index)}
-                           className={`font-bold text-3xl p-1 rounded-md transition-colors mx-1 ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'}`}>
-                           {displayValue}
+                           className={`font-bold p-1 rounded-md transition-colors mx-1 ${isClickable ? `cursor-pointer hover:bg-${themeColor}-100` : 'text-slate-500'} ${isExponent ? 'text-2xl -top-3 relative' : 'text-3xl'}`}>
+                           {isExponent ? ' ' : displayValue}
+                           {isExponent && <span className="absolute text-sm -top-1 -right-0.5">exponent</span>}
                        </button>
                    );
                }
                
                const isExponentValue = equation[index-1] && equation[index-1].value === '^';
                if(isExponentValue) {
-                   return <sup key={index} className="text-2xl -top-3 relative">{token.value}</sup>
+                   return <sup key={index} className="text-2xl -top-3 relative -left-1">{token.value}</sup>
                }
                
                return <span key={index} className="text-3xl">{token.value}</span>;
@@ -1980,10 +2012,10 @@
                                Solve: 
                                <span className="font-mono ml-2 text-2xl">
                                {nextStepInfo.subProblem.map((token, index) => {
-                                   if (nextStepInfo.subProblem[index-1] && nextStepInfo.subProblem[index-1].value === '^') {
+                                   if (index > 0 && nextStepInfo.subProblem[index-1].value === '^') {
                                        return <sup key={index} className="text-xl -top-2 relative">{token.value}</sup>;
                                    }
-                                   const display = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value;
+                                   const display = token.value === '*' ? '×' : token.value === '/' ? '÷' : token.value === '^' ? '' : token.value;
                                    return <span key={index}>{display} </span>;
                                })}
                                </span>
