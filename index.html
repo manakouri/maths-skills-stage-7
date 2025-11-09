@@ -1797,45 +1797,106 @@
           const [answerStatus, setAnswerStatus] = useState(AnswerStatus.UNANSWERED);
 
           useEffect(() => {
+              const style = document.createElement('style');
+              style.innerHTML = `.no-scroll { overflow: hidden !important; }`;
+              document.head.appendChild(style);
+              
               setItems(question.items);
               setOrderedItems(Array(5).fill(null));
               setAnswerStatus(AnswerStatus.UNANSWERED);
+              setDraggedItem(null);
+
+              return () => {
+                  document.head.removeChild(style);
+                  document.body.classList.remove('no-scroll');
+              };
           }, [question]);
+
+          const shuffleArray = (array) => {
+              let newArr = [...array]; for (let i = newArr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[newArr[i], newArr[j]] = [newArr[j], newArr[i]]; } return newArr;
+          };
 
           const handleDragStart = (e, item, source, index) => {
               setDraggedItem({ item, source, index });
-              e.dataTransfer.effectAllowed = 'move';
+              if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+              }
           };
           
           const handleDrop = (e, target, index) => {
               e.preventDefault();
               if (!draggedItem) return;
-
               const { item, source, index: sourceIndex } = draggedItem;
-              
+              if (source === target && sourceIndex === index) {
+                  setDraggedItem(null);
+                  return;
+              }
               let newUnordered = [...items];
               let newOrdered = [...orderedItems];
-
-              // Remove from source
               if (source === 'unordered') {
                   newUnordered = newUnordered.filter(i => i.id !== item.id);
-              } else { // from ordered
+              } else {
                   newOrdered[sourceIndex] = null;
               }
-              
-              // Add to target
               if (target === 'unordered') {
                   newUnordered.push(item);
-              } else { // to ordered
-                  if (newOrdered[index]) { // If slot is occupied, displace it
+              } else {
+                  if (newOrdered[index]) {
                       const displacedItem = newOrdered[index];
                       if(source === 'unordered') newUnordered.push(displacedItem);
                       else { newOrdered[sourceIndex] = displacedItem; }
                   }
                   newOrdered[index] = item;
               }
-              setItems(newUnordered);
+              setItems(shuffleArray(newUnordered));
               setOrderedItems(newOrdered);
+              setDraggedItem(null);
+          };
+
+          const handleTouchStart = (e, item, source, index) => {
+              setDraggedItem({ item, source, index });
+              document.body.classList.add('no-scroll');
+          };
+          
+          const handleTouchEnd = (e) => {
+              if (!draggedItem) return;
+              document.body.classList.remove('no-scroll');
+              const touch = e.changedTouches[0];
+              const originalElement = document.getElementById(`dnd-item-${draggedItem.item.id}`);
+              if (originalElement) originalElement.style.visibility = 'hidden';
+              const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+              if (originalElement) originalElement.style.visibility = 'visible';
+              if (targetElement) {
+                  const dropZone = targetElement.closest('[data-drop-zone]');
+                  if (dropZone) {
+                      const targetType = dropZone.dataset.dropZone;
+                      const targetIndex = dropZone.dataset.index ? parseInt(dropZone.dataset.index, 10) : -1;
+                      const { item, source, index: sourceIndex } = draggedItem;
+                      if (source === targetType && sourceIndex === targetIndex) {
+                          setDraggedItem(null);
+                          return;
+                      }
+                      let newUnordered = [...items];
+                      let newOrdered = [...orderedItems];
+                      if (source === 'unordered') {
+                          newUnordered = newUnordered.filter(i => i.id !== item.id);
+                      } else {
+                          newOrdered[sourceIndex] = null;
+                      }
+                      if (targetType === 'unordered') {
+                          newUnordered.push(item);
+                      } else {
+                          if (newOrdered[targetIndex]) {
+                              const displacedItem = newOrdered[targetIndex];
+                              if(source === 'unordered') newUnordered.push(displacedItem);
+                              else { newOrdered[sourceIndex] = displacedItem; }
+                          }
+                          newOrdered[targetIndex] = item;
+                      }
+                      setItems(shuffleArray(newUnordered));
+                      setOrderedItems(newOrdered);
+                  }
+              }
               setDraggedItem(null);
           };
 
@@ -1848,6 +1909,7 @@
           };
 
           const themeColor = colorTheme === 'fractions' ? 'purple' : 'blue';
+          const getItemId = (item) => `dnd-item-${item.id}`;
 
           const renderItem = (item) => (
               <div className={`p-3 rounded-lg text-center font-semibold text-lg cursor-grab ${answerStatus === AnswerStatus.UNANSWERED ? `bg-${themeColor}-100 text-${themeColor}-800` : answerStatus === AnswerStatus.CORRECT ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -1856,19 +1918,19 @@
           );
 
           return (
-              <div className="bg-white p-8 rounded-xl shadow-lg">
+              <div className="bg-white p-8 rounded-xl shadow-lg" onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
                   <h3 className="text-xl text-center font-semibold text-slate-800 mb-6">Order the following from smallest to largest:</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-3 min-h-[320px]" onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'unordered')}>
+                      <div className="space-y-3 min-h-[320px]" onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'unordered')} data-drop-zone="unordered">
                           <h4 className="text-center font-medium text-slate-500">Unordered Items</h4>
-                          {items.map((item) => <div key={item.id} draggable onDragStart={e => handleDragStart(e, item, 'unordered')}>{renderItem(item)}</div>)}
+                          {items.map((item) => <div key={item.id} id={getItemId(item)} draggable onDragStart={e => handleDragStart(e, item, 'unordered')} onTouchStart={e => handleTouchStart(e, item, 'unordered')} className={draggedItem?.item.id === item.id ? 'opacity-30' : ''}>{renderItem(item)}</div>)}
                       </div>
                       <div className="space-y-2 relative">
                           <h4 className="text-center font-medium text-slate-500">Ordered Items</h4>
                           {[...Array(5)].map((_, i) => (
                               <div key={i} className={`h-16 flex items-center justify-center rounded-lg ${orderedItems[i] ? '' : 'bg-slate-50'}`}
-                                   onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'ordered', i)}>
-                                  {orderedItems[i] && <div className="w-full" draggable onDragStart={e => handleDragStart(e, orderedItems[i], 'ordered', i)}>{renderItem(orderedItems[i])}</div>}
+                                   onDragOver={e => e.preventDefault()} onDrop={e => handleDrop(e, 'ordered', i)} data-drop-zone="ordered" data-index={i}>
+                                  {orderedItems[i] && <div className="w-full" id={getItemId(orderedItems[i])} draggable onDragStart={e => handleDragStart(e, orderedItems[i], 'ordered', i)} onTouchStart={e => handleTouchStart(e, orderedItems[i], 'ordered', i)} className={draggedItem?.item.id === orderedItems[i].id ? 'opacity-30' : ''}>{renderItem(orderedItems[i])}</div>}
                               </div>
                           ))}
                       </div>
